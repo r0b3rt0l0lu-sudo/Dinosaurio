@@ -18,6 +18,7 @@ function advance(frameS) {
 }
 function loop(now) {
   requestAnimationFrame(loop);   // se pide el siguiente fotograma primero: un error no puede congelar el juego
+  if (game.frozen) { last = now; return; }   // imagen congelada (generador de portadas)
   const frameS = Math.max(0, (now - last) / 1000);   // nunca negativo (el primer fotograma puede llegar «antes»)
   if (!document.hidden && now > last) game.frameStat(now - last);
   last = Math.max(last, now);

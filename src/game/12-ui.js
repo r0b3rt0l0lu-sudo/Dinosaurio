@@ -254,6 +254,7 @@ class UI {
   }
   draw(c) {
     const g = this.game;
+    if (g.hideHud) return;   // portadas y modo grabación: solo el juego, sin marcador
     if (["playing", "paused", "over", "choice", "tip"].includes(g.state)) this.drawHud(c);
     if (g.tutorial && ["playing", "paused", "tip"].includes(g.state)) g.tutorial.draw(c, this);
     if (g.state === "playing" || g.state === "paused") { this.drawBanner(c); this.drawBossScreens(c); }

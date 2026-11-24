@@ -842,3 +842,17 @@
   .login-card { background: linear-gradient(180deg, #2a2145, #1c1630) !important; border: 3px solid var(--line); box-shadow: inset 0 2px 0 var(--bevel), 8px 8px 0 rgba(0,0,0,.45) !important; padding: 18px 20px 20px; }
   .login-card .scr-title { font-size: clamp(24px, 4vw, 38px); }
   .login-card .scr-sub { font-size: 11px; }
+  /* Portadas y modo grabación (solo versión web) */
+  body.media-mode > *:not(#coverOut):not(#recFrame) { display: none !important; }
+  body.media-mode { background: #0e0b16; cursor: default; }
+  #coverOut { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  #coverOut canvas { image-rendering: pixelated; box-shadow: 0 0 0 3px #3d3160; }
+  #coverOut a { font: 14px monospace; color: #ffd23f; background: #231b38; padding: 10px 16px; border: 2px solid #574a82; text-decoration: none; }
+  body.record-mode, body.record-mode * { cursor: none !important; }
+  body.record-mode { padding: 0; overflow: hidden; justify-content: flex-start; align-items: flex-start; }
+  #recFrame { position: fixed; left: 0; top: 0; overflow: hidden; transform-origin: 0 0; background: linear-gradient(180deg, #2b1630, #120b1c 60%, #2a1a10); }
+  #recFrame #stage { position: absolute; left: 0; display: block !important; }
+  #recFrame #stage > .t-pause, #recFrame #tutSkip, #recFrame #specBar, #recFrame #tip { display: none !important; }
+  #recFrame canvas#game { border-radius: 0; box-shadow: none; }
+  #recCard { position: absolute; inset: 0; z-index: 5; pointer-events: none; image-rendering: pixelated; }
+  #recTitle { position: absolute; left: 0; top: 0; z-index: 3; image-rendering: pixelated; }

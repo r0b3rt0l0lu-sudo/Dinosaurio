@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<!-- Herramientas para preparar Dino Runner en CrazyGames (NO se sube: está fuera de build/crazygames).
+     Ábrelo después de ejecutar «node tools/build.js», con el navegador (doble clic). -->
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Dino Runner · portadas y vídeos</title>
+<style>
+  body { margin: 0; padding: 24px; background: #171225; color: #fbf3e4; font: 15px/1.5 system-ui, sans-serif; }
+  h1 { color: #ffb938; margin: 0 0 4px; } h2 { color: #5fd15a; margin: 28px 0 8px; }
+  a.btn { display: inline-block; margin: 4px 8px 4px 0; padding: 10px 16px; background: #2f2549; border: 2px solid #574a82; color: #ffd23f; text-decoration: none; }
+  a.btn:hover { background: #3d3160; } code { background: #0e0b16; padding: 2px 6px; }
+  ol li { margin: 6px 0; } .note { color: #b3a7cc; }
+</style>
+</head>
+<body>
+  <h1>Dino Runner · material para CrazyGames</h1>
+  <p class="note">Cada botón abre el juego en un modo especial. Nada de esto cambia tu partida guardada.</p>
+
+  <h2>1 · Portadas (PNG)</h2>
+  <p>Se abre la portada ya dibujada con los gráficos del juego; pulsa «Descargar portada» debajo de la imagen.</p>
+  <a class="btn" href="../index.html?cover=wide" target="_blank">Horizontal 1920 × 1080</a>
+  <a class="btn" href="../index.html?cover=tall" target="_blank">Vertical 800 × 1200</a>
+  <a class="btn" href="../index.html?cover=square" target="_blank">Cuadrada 800 × 800</a>
+
+  <h2>2 · Vídeos (modo grabación)</h2>
+  <p>Sin cursor, sin menús y con piloto automático: portada 2,5 s → Volcán con el Fénix → jefe (Golem de lava) → portal al Glaciar (unos 18 s). Recarga la página para empezar de nuevo.</p>
+  <a class="btn" href="../index.html?record=1&w=1920&h=1080" target="_blank">Horizontal 1920 × 1080</a>
+  <a class="btn" href="../index.html?record=1&w=1080&h=1620" target="_blank">Vertical 2:3 (1080 × 1620)</a>
+  <ol>
+    <li>Abre el modo que quieras y pon el navegador a pantalla completa (<code>F11</code>). Si tu pantalla es más pequeña que el tamaño pedido, la imagen se reduce para caber.</li>
+    <li>Graba con OBS Studio (gratis) o con la grabadora de tu sistema (<code>Win + Alt + R</code> en Windows; <code>Cmd + Mayús + 5</code> en Mac). El juego va en silencio.</li>
+    <li>Recorta 15–20 segundos. Para el vertical, en OBS usa un lienzo de 1080 × 1620.</li>
+  </ol>
+
+  <h2>3 · Prueba de física</h2>
+  <a class="btn" href="../index.html?debug=1" target="_blank">Abrir con ?debug=1</a>
+  <p class="note">Pulsa «Probar 30 / 60 / 144 / 165 FPS»: el salto y la distancia deben salir iguales.</p>
+
+  <h2>4 · Traducciones que faltan</h2>
+  <a class="btn" href="../build/crazygames/index.html?i18n=missing" target="_blank">Abrir la versión de CrazyGames en modo revisión</a>
+  <p class="note">Juega en inglés y, en la consola del navegador (<code>F12</code>), escribe <code>I18N.missing()</code> para ver los textos que se han visto sin traducir.</p>
+</body>
+</html>

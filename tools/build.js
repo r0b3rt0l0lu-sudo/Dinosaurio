@@ -35,7 +35,28 @@ function build(name) {
   fs.mkdirSync(path.dirname(out), { recursive: true });
   fs.writeFileSync(out, filterTarget(html, name));
   console.log(`OK ${T.out}  ${(html.length / 1024 / 1024).toFixed(2)} MB`);
-  if (name === "crazygames") report(path.dirname(out));
+  if (name === "crazygames") { report(path.dirname(out)); zipDir(path.dirname(out), path.join(ROOT, "build", "dino-runner-crazygames.zip")); }
+}
+// ZIP del paquete (para subirlo de una vez a CrazyGames). Sin dependencias: ZIP clásico con compresión «deflate»
+function zipDir(dir, zipPath) {
+  const zlib = require("zlib"), files = [], walk = (d, rel) => { for (const f of fs.readdirSync(d)) { const p = path.join(d, f), r = rel ? rel + "/" + f : f; fs.statSync(p).isDirectory() ? walk(p, r) : files.push([r, fs.readFileSync(p)]); } };
+  walk(dir, "");
+  const crcT = Array.from({ length: 256 }, (_, n) => { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; return c >>> 0; });
+  const crc32 = b => { let c = 0xffffffff; for (const x of b) c = crcT[(c ^ x) & 255] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; };
+  const parts = [], central = []; let off = 0;
+  for (const [name, data] of files) {
+    const nm = Buffer.from(name), comp = zlib.deflateRawSync(data, { level: 9 }), crc = crc32(data);
+    const h = Buffer.alloc(30); h.writeUInt32LE(0x04034b50, 0); h.writeUInt16LE(20, 4); h.writeUInt16LE(0x0800, 6); h.writeUInt16LE(8, 8);
+    h.writeUInt32LE(crc, 14); h.writeUInt32LE(comp.length, 18); h.writeUInt32LE(data.length, 22); h.writeUInt16LE(nm.length, 26);
+    parts.push(h, nm, comp);
+    const c = Buffer.alloc(46); c.writeUInt32LE(0x02014b50, 0); c.writeUInt16LE(20, 4); c.writeUInt16LE(20, 6); c.writeUInt16LE(0x0800, 8); c.writeUInt16LE(8, 10);
+    c.writeUInt32LE(crc, 16); c.writeUInt32LE(comp.length, 20); c.writeUInt32LE(data.length, 24); c.writeUInt16LE(nm.length, 28); c.writeUInt32LE(off, 42);
+    central.push(c, nm); off += 30 + nm.length + comp.length;
+  }
+  const cd = Buffer.concat(central), end = Buffer.alloc(22); end.writeUInt32LE(0x06054b50, 0); end.writeUInt16LE(files.length, 8); end.writeUInt16LE(files.length, 10);
+  end.writeUInt32LE(cd.length, 12); end.writeUInt32LE(off, 16);
+  fs.writeFileSync(zipPath, Buffer.concat([...parts, cd, end]));
+  console.log(`   ZIP para subir: ${path.relative(ROOT, zipPath)} (${(fs.statSync(zipPath).size / 1024 / 1024).toFixed(2)} MB)`);
 }
 // Bloques marcados solo para una versión:  /*@web*/ … /*@end*/  o  <!--@web--> … <!--@end-->
 function filterTarget(html, name) {

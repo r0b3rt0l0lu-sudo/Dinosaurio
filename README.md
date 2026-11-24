@@ -62,3 +62,31 @@ La portada ocupa toda la pantalla, con el escenario del juego animado de fondo (
 Todas las constantes de balance están comentadas en `CONFIG`, al principio del último `<script>`: niveles y jefe de cada nivel (`LEVELS`), velocidades, modos Fácil (`EASY`) y Difícil (`HARD`), bosses (`BOSS_*`), huevos (`EGG_*`), checkpoints, editor, ruleta (`ROULETTE_*`, `FREE_SPIN_PRIZES`) y monedas. Los logros están en `ACHIEVEMENTS`. Furia, monturas, roguelike y árbol tienen sus propios bloques: `FURY_CONFIG`, `MOUNT_CONFIG`, `ROGUE_CONFIG` (con `UPGRADES`, `SYNERGIES` y `PACTS`) y `TREE_CONFIG`; también `BACKUP_CONFIG` y `TUTORIAL_CONFIG`. El manual lee estos valores, así que se actualiza solo.
 
 Modo prueba: pon `const DEBUG = true;` para tener 5000 monedas y todos los niveles completados; las teclas 1–9 y 0 saltan a los niveles 1–10, B lanza el boss del nivel actual, M da la montura del bioma (Mayús + M recorre las 10), U abre una elección de mejora (Mayús + U da una mejora al azar), L fuerza una Legendaria en la siguiente tirada y K hace aparecer un altar de ámbar. Con DEBUG no se consiguen logros.
+
+## Estructura del código y comandos (desde la versión 28)
+
+El código ya no se edita dentro de `index.html`: está repartido en `src/` y un script lo junta.
+
+- `src/head.html`, `src/body.html`, `src/css/style.css` — página y estilos.
+- `src/platform.js` — **única** parte que habla con la plataforma (CrazyGames): guardado, idioma, móvil, anuncios. Tiene TODO numerados (1–14) para conectar el SDK.
+- `src/i18n/i18n.js` y `src/i18n/en.js` — idiomas (español = clave, inglés = traducción).
+- `src/game/*.js` — el juego, por partes numeradas (en el orden en que se juntan).
+- `src/web-only/` — herramientas que **solo** van en la versión web (prueba de física, portadas, grabación).
+
+Comandos (necesitan Node.js):
+
+| Comando | Qué hace |
+|---|---|
+| `node tools/build.js` | Crea `index.html` (versión web, con online y PWA) |
+| `node tools/build.js crazygames` | Crea `build/crazygames/index.html` y `build/dino-runner-crazygames.zip` (sin online, sin enlaces externos) |
+| `node tools/build.js all` | Las dos cosas y muestra tamaño y número de archivos |
+| `node tools/i18n-export.js` | Escribe `store/crazygames/traducciones.csv` para revisar las traducciones |
+
+Herramientas en el navegador (abriendo `index.html`; resumen en `tools/covers.html`):
+
+- `?debug=1` — prueba de física a 30 / 60 / 144 / 165 FPS (el salto y la distancia deben salir iguales).
+- `?i18n=missing` — juega en inglés y luego mira en la consola `I18N.missing()` para ver textos sin traducir.
+- `?cover=wide|tall|square` — portadas 1920×1080, 800×1200 y 800×800 (ya guardadas en `store/crazygames/`).
+- `?record=1&w=1920&h=1080` — modo grabación para los vídeos (sin cursor ni menús, piloto automático). Para vertical: `w=1080&h=1920`.
+
+Textos de la ficha de CrazyGames: `store/crazygames/FICHA.md`.
