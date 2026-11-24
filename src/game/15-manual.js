@@ -65,7 +65,7 @@ const MANUAL_SECTIONS = [
       <tr><td>${kbd(game.controls.labels("pause"))}</td><td>Pausa (también congela los combates).</td></tr>
       <tr><td>${kbd("M")}</td><td>Silenciar.</td></tr>
     </table>
-    <p>Son las teclas que tienes ahora: cámbialas en <b>Opciones → 🎮 Controles</b> (WASD, flechas, las dos o las que quieras; también las del multijugador local). Esc siempre pausa. Las teclas funcionan en mayúsculas y minúsculas. En la elección de mejora: ${kbd("A")}/${kbd("D")} elegir carta, ${kbd("W")} cogerla, ${kbd("R")} barajar y ${kbd("Q")} saltar. Montado, cada montura cambia lo que hacen ${kbd("W")} y ${kbd("S")} (mira la sección Monturas).</p>
+    <p>Son las teclas que tienes ahora: cámbialas en <b>Opciones → 🎮 Controles</b> (WASD, flechas, las dos o las que quieras; también las del multijugador local). ${BUILD.esc ? "Espacio también salta y Esc siempre pausa." : "Espacio también salta y P pausa."} Las teclas funcionan en mayúsculas y minúsculas. En la elección de mejora: ${kbd("A")}/${kbd("D")} elegir carta, ${kbd("W")} cogerla, ${kbd("R")} barajar y ${kbd("Q")} saltar. Montado, cada montura cambia lo que hacen ${kbd("W")} y ${kbd("S")} (mira la sección Monturas).</p>
     <h4>Furia</h4>
     <p>La barra de furia (debajo del rugido) se llena esquivando por los pelos (+${FURY_CONFIG.NEAR_MISS}), recogiendo huevos (+${FURY_CONFIG.EGG}), destruyendo con el rugido (+${FURY_CONFIG.ROAR_KILL}) y dañando a los bosses (+${FURY_CONFIG.BOSS_HIT}). Si pasas ${FURY_CONFIG.DECAY_AFTER} s sin sumar, se va vaciando. Durante los combates contra jefes el súper rugido no se puede usar.</p>
     <h4>Móvil</h4>

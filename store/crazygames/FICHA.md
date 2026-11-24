@@ -24,10 +24,10 @@ Also included: a **Daily Run** with the same course for everyone, a free Season 
 Can you clear all 10 worlds in one go… and find the secret level?
 
 ### Controls — Desktop
-- **W / ↑** — jump (press again in mid-air to double jump; hold to glide with some upgrades)
+- **W / ↑ / Space** — jump (press again in mid-air to double jump; hold to glide with some upgrades)
 - **S / ↓** — slide (in mid-air: fast fall)
 - **A / ←** and **D / →** — upper / lower lane
-- **E / Space** — roar (with a full Fury bar: super roar)
+- **E / Shift** — roar (with a full Fury bar: super roar)
 - **P** — pause
 - **Mouse click** on the game — jump
 - All keys can be changed in **Options → Controls** (AZERTY keyboards work out of the box).
@@ -61,10 +61,10 @@ Además: **carrera diaria** con el mismo recorrido para todos, pase de temporada
 ¿Puedes superar los 10 mundos de un tirón… y encontrar el nivel secreto?
 
 ### Controles — Ordenador
-- **W / ↑** — saltar (otra vez en el aire = doble salto; mantener = planear con algunas mejoras)
+- **W / ↑ / Espacio** — saltar (otra vez en el aire = doble salto; mantener = planear con algunas mejoras)
 - **S / ↓** — deslizarse (en el aire: caída rápida)
 - **A / ←** y **D / →** — carril de arriba / abajo
-- **E / Espacio** — rugido (con la furia llena: súper rugido)
+- **E / Mayús** — rugido (con la furia llena: súper rugido)
 - **P** — pausa
 - **Clic** en el juego — saltar
 - Todas las teclas se cambian en **Opciones → Controles** (los teclados AZERTY funcionan sin tocar nada).

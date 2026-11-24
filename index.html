@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="Dino Runner">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
-<script>window.DR_BUILD = {"target":"web","online":true,"pwa":true,"links":true,"backup":true};</script>
+<script>window.DR_BUILD = {"target":"web","online":true,"pwa":true,"links":true,"backup":true,"esc":true};</script>
 <style>
   :root { --bg: #14161f; --fg: #e8e6df; --muted: #9aa0b4; --card: #1b1e2e; --edge: #3b4163; --green: #4caf50; --gold: #e0a526; }
   * { box-sizing: border-box; }
@@ -1747,6 +1747,11 @@ window.I18N_EN = {
 "W salta · E ruge": "W jumps · E roars",
 "W salta · arrolla lo pequeño": "W jumps · runs over small things",
 "W saltar · S deslizarse · A/D carril · E rugido": "W jump · S slide · A/D lane · E roar",
+"W o Espacio saltar · S deslizarse · A/D carril · E rugido": "W or Space jump · S slide · A/D lane · E roar",
+"↑ o Espacio saltar · ↓ deslizarse · ←/→ carril · Mayús rugido": "↑ or Space jump · ↓ slide · ←/→ lane · Shift roar",
+"Pulsa una casilla y luego la tecla que quieras. <kbd>Retroceso</kbd> la quita · P pausa y M silencia.": "Click a slot and then the key you want. <kbd>Backspace</kbd> clears it · P pauses and M mutes.",
+"Son las teclas que tienes ahora: cámbialas en <b>Opciones → 🎮 Controles</b> (WASD, flechas, las dos o las que quieras; también las del multijugador local). Espacio también salta y Esc siempre pausa. Las teclas funcionan en mayúsculas y minúsculas. En la elección de mejora: <kbd>A</kbd>/<kbd>D</kbd> elegir carta, <kbd>W</kbd> cogerla, <kbd>R</kbd> barajar y <kbd>Q</kbd> saltar. Montado, cada montura cambia lo que hacen <kbd>W</kbd> y <kbd>S</kbd> (mira la sección Monturas).": "These are your current keys: change them in <b>Options → 🎮 Controls</b> (WASD, arrows, both or any you like; also the local multiplayer ones). Space also jumps and Esc always pauses. Keys work in upper and lower case. When choosing an upgrade: <kbd>A</kbd>/<kbd>D</kbd> choose a card, <kbd>W</kbd> take it, <kbd>R</kbd> reroll and <kbd>Q</kbd> skip. While mounted, each mount changes what <kbd>W</kbd> and <kbd>S</kbd> do (see the Mounts section).",
+"Son las teclas que tienes ahora: cámbialas en <b>Opciones → 🎮 Controles</b> (WASD, flechas, las dos o las que quieras; también las del multijugador local). Espacio también salta y P pausa. Las teclas funcionan en mayúsculas y minúsculas. En la elección de mejora: <kbd>A</kbd>/<kbd>D</kbd> elegir carta, <kbd>W</kbd> cogerla, <kbd>R</kbd> barajar y <kbd>Q</kbd> saltar. Montado, cada montura cambia lo que hacen <kbd>W</kbd> y <kbd>S</kbd> (mira la sección Monturas).": "These are your current keys: change them in <b>Options → 🎮 Controls</b> (WASD, arrows, both or any you like; also the local multiplayer ones). Space also jumps and P pauses. Keys work in upper and lower case. When choosing an upgrade: <kbd>A</kbd>/<kbd>D</kbd> choose a card, <kbd>W</kbd> take it, <kbd>R</kbd> reroll and <kbd>Q</kbd> skip. While mounted, each mount changes what <kbd>W</kbd> and <kbd>S</kbd> do (see the Mounts section).",
 "W salto alto · S para bucear": "W high jump · S to dive",
 "W salto bajo · S frena · E ruge": "W low jump · S brakes · E roars",
 "W salto bajo · cambio de carril lento": "W low jump · slow lane change",
@@ -4129,7 +4134,7 @@ const CONFIG = {
 // Con DEBUG activo no se consiguen logros.
 const DEBUG = false;
 // Versión que se está ejecutando (la pone tools/build.js): web o CrazyGames
-const BUILD = Object.assign({ target: "web", online: true, pwa: true, links: true, backup: true }, window.DR_BUILD || {});
+const BUILD = Object.assign({ target: "web", online: true, pwa: true, links: true, backup: true, esc: true }, window.DR_BUILD || {});
 for (const [k, cls] of [["online", "no-online"], ["pwa", "no-pwa"], ["backup", "no-backup"]]) document.body.classList.toggle(cls, !BUILD[k]);   // oculta lo que no existe en esta versión
 
 // =====================================================================
@@ -11514,7 +11519,7 @@ const MANUAL_SECTIONS = [
       <tr><td>${kbd(game.controls.labels("pause"))}</td><td>Pausa (también congela los combates).</td></tr>
       <tr><td>${kbd("M")}</td><td>Silenciar.</td></tr>
     </table>
-    <p>Son las teclas que tienes ahora: cámbialas en <b>Opciones → 🎮 Controles</b> (WASD, flechas, las dos o las que quieras; también las del multijugador local). Esc siempre pausa. Las teclas funcionan en mayúsculas y minúsculas. En la elección de mejora: ${kbd("A")}/${kbd("D")} elegir carta, ${kbd("W")} cogerla, ${kbd("R")} barajar y ${kbd("Q")} saltar. Montado, cada montura cambia lo que hacen ${kbd("W")} y ${kbd("S")} (mira la sección Monturas).</p>
+    <p>Son las teclas que tienes ahora: cámbialas en <b>Opciones → 🎮 Controles</b> (WASD, flechas, las dos o las que quieras; también las del multijugador local). ${BUILD.esc ? "Espacio también salta y Esc siempre pausa." : "Espacio también salta y P pausa."} Las teclas funcionan en mayúsculas y minúsculas. En la elección de mejora: ${kbd("A")}/${kbd("D")} elegir carta, ${kbd("W")} cogerla, ${kbd("R")} barajar y ${kbd("Q")} saltar. Montado, cada montura cambia lo que hacen ${kbd("W")} y ${kbd("S")} (mira la sección Monturas).</p>
     <h4>Furia</h4>
     <p>La barra de furia (debajo del rugido) se llena esquivando por los pelos (+${FURY_CONFIG.NEAR_MISS}), recogiendo huevos (+${FURY_CONFIG.EGG}), destruyendo con el rugido (+${FURY_CONFIG.ROAR_KILL}) y dañando a los bosses (+${FURY_CONFIG.BOSS_HIT}). Si pasas ${FURY_CONFIG.DECAY_AFTER} s sin sumar, se va vaciando. Durante los combates contra jefes el súper rugido no se puede usar.</p>
     <h4>Móvil</h4>
@@ -14399,12 +14404,12 @@ const CONTROL_ACTIONS = {
   vs2: [["jump", "Saltar"], ["slide", "Deslizarse"], ["roar", "Rugido"], ["trap", "Trampa"]],
 };
 const CONTROL_PRESETS = {
-  wasd:   { name: "WASD", desc: "W saltar · S deslizarse · A/D carril · E rugido",
+  wasd:   { name: "WASD", desc: "W o Espacio saltar · S deslizarse · A/D carril · E rugido",
             solo: { jump: ["w", ""], slide: ["s", ""], laneUp: ["a", ""], laneDown: ["d", ""], roar: ["e", ""], trap: ["q", ""], pause: ["p", ""] } },
-  arrows: { name: "Flechas", desc: "↑ saltar · ↓ deslizarse · ←/→ carril · Espacio rugido",
-            solo: { jump: ["ArrowUp", ""], slide: ["ArrowDown", ""], laneUp: ["ArrowLeft", ""], laneDown: ["ArrowRight", ""], roar: ["Space", ""], trap: ["q", "ShiftRight"], pause: ["p", ""] } },
+  arrows: { name: "Flechas", desc: "↑ o Espacio saltar · ↓ deslizarse · ←/→ carril · Mayús rugido",
+            solo: { jump: ["ArrowUp", "Space"], slide: ["ArrowDown", ""], laneUp: ["ArrowLeft", ""], laneDown: ["ArrowRight", ""], roar: ["ShiftLeft", ""], trap: ["q", "ShiftRight"], pause: ["p", ""] } },
   both:   { name: "WASD + flechas", desc: "Las dos a la vez: juega como te resulte más cómodo",
-            solo: { jump: ["w", "ArrowUp"], slide: ["s", "ArrowDown"], laneUp: ["a", "ArrowLeft"], laneDown: ["d", "ArrowRight"], roar: ["e", "Space"], trap: ["q", "ShiftRight"], pause: ["p", ""] } },
+            solo: { jump: ["w", "ArrowUp"], slide: ["s", "ArrowDown"], laneUp: ["a", "ArrowLeft"], laneDown: ["d", "ArrowRight"], roar: ["e", "ShiftLeft"], trap: ["q", "ShiftRight"], pause: ["p", ""] } },
 };
 const CONTROL_VS_DEFAULT = {
   vs1: { jump: ["w", ""], slide: ["s", ""], roar: ["e", "d"], trap: ["a", "q"] },
@@ -14460,6 +14465,10 @@ class Controls {
         if (!used) { if (!t[0]) t[0] = "q"; else if (!t[1]) t[1] = "q"; } };
       addQ(["solo"], "solo"); addQ(["vs1", "vs2"], "vs1");
     }
+    if (!c.spaceJump) {   // (v28) Espacio pasa a saltar y el rugido a E / Mayús: se actualizan los ajustes guardados que no sean personalizados
+      c.spaceJump = 1;
+      if (c.preset !== "custom" && CONTROL_PRESETS[c.preset]) c.solo = clone(CONTROL_PRESETS[c.preset].solo);
+    }
     return c;
   }
   // Mapa tecla → acción de cada grupo (se recalcula al cambiar algo)
@@ -14503,7 +14512,7 @@ class Controls {
     if (this.tab === "solo") {
       h.push(`<div class="ctrl-presets">${Object.entries(CONTROL_PRESETS).map(([id, p]) => `<button class="btn${c.preset === id ? " sel" : ""}" data-preset="${id}"><b>${p.name}</b><small>${p.desc}</small></button>`).join("")}</div>`);
       h.push(`<div class="ctrl-list">${CONTROL_ACTIONS.solo.map(([a, n]) => row("solo", a, n)).join("")}</div>`);
-      h.push(`<p class="touch-hint">${c.preset === "custom" ? "✏️ Personalizado · " : ""}Pulsa una casilla y luego la tecla que quieras. <kbd>Retroceso</kbd> la quita · <kbd>Esc</kbd> cancela. Esc siempre pausa y M silencia.</p>`);
+      h.push(`<p class="touch-hint">${c.preset === "custom" ? "✏️ Personalizado · " : ""}Pulsa una casilla y luego la tecla que quieras. <kbd>Retroceso</kbd> la quita · ${BUILD.esc ? "<kbd>Esc</kbd> cancela. Esc siempre pausa y M silencia." : "P pausa y M silencia."}</p>`);
     } else {
       h.push(`<div class="ctrl-vs">${["vs1", "vs2"].map((s, i) => `<div><h3>J${i + 1} · carril de ${i ? "abajo" : "arriba"}</h3><div class="ctrl-list">${CONTROL_ACTIONS[s].map(([a, n]) => row(s, a, n)).join("")}</div></div>`).join("")}</div>`);
       h.push(`<div class="actions"><button class="btn" data-vs="swap">⇄ Intercambiar J1 y J2</button><button class="btn ghost" data-vs="reset">Restablecer</button></div>`);
@@ -15444,12 +15453,14 @@ const keyOf = e => (e.code === "Space" ? "Space" : /^Key[A-Z]$/.test(e.code) ? e
 const C = game.controls;   // teclas configurables (Opciones → Controles)
 addEventListener("keydown", e => {
   const k = keyOf(e), st = game.state;
+  if (k === "Escape" && !BUILD.esc) return;   // versión CrazyGames: Esc es del navegador (salir de pantalla completa); el juego no la usa
   if (game.adPending) { e.preventDefault(); return; }   // durante un anuncio no se hace nada
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;           // escribir el nombre de un diseño
   // Si el foco está en un botón, Espacio/Enter lo pulsan (comportamiento normal del navegador)
   if ((e.code === "Space" || e.code === "Enter") && e.target.closest && e.target.closest("button")) return;
   // Acción de la tecla según los controles elegidos (por defecto: W saltar · S deslizarse · A/D carril · E rugido · P pausa, y también las flechas)
-  const act = C.action(k), a1 = game.versus ? C.action(k, "vs1") : null, a2 = game.versus ? C.action(k, "vs2") : null;
+  // Espacio salta siempre (salvo que la hayas asignado a otra acción)
+  const act = C.action(k) || (k === "Space" && !game.versus ? "jump" : null), a1 = game.versus ? C.action(k, "vs1") : null, a2 = game.versus ? C.action(k, "vs2") : null;
   if ("wasde".includes(k) && k.length === 1) e.preventDefault();
   if ((k.startsWith("Arrow") || act || a1 || a2) && ["playing", "paused", "over"].includes(st)) e.preventDefault();   // las flechas y el espacio no mueven la página
   if (game.versus) {   // mantener pulsado: deslizarse / caída rápida y planear

@@ -12,8 +12,8 @@ const list = dir => fs.readdirSync(path.join(SRC, dir)).filter(f => f.endsWith("
 
 // Qué cambia en cada versión (el juego lo lee en window.DR_BUILD)
 const TARGETS = {
-  web: { out: "index.html", flags: { target: "web", online: true, pwa: true, links: true, backup: true } },
-  crazygames: { out: "build/crazygames/index.html", flags: { target: "crazygames", online: false, pwa: false, links: false, backup: false } },
+  web: { out: "index.html", flags: { target: "web", online: true, pwa: true, links: true, backup: true, esc: true } },
+  crazygames: { out: "build/crazygames/index.html", flags: { target: "crazygames", online: false, pwa: false, links: false, backup: false, esc: false } },
 };
 
 function build(name) {

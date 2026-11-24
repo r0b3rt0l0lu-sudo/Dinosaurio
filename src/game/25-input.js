@@ -19,12 +19,14 @@ const keyOf = e => (e.code === "Space" ? "Space" : /^Key[A-Z]$/.test(e.code) ? e
 const C = game.controls;   // teclas configurables (Opciones → Controles)
 addEventListener("keydown", e => {
   const k = keyOf(e), st = game.state;
+  if (k === "Escape" && !BUILD.esc) return;   // versión CrazyGames: Esc es del navegador (salir de pantalla completa); el juego no la usa
   if (game.adPending) { e.preventDefault(); return; }   // durante un anuncio no se hace nada
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;           // escribir el nombre de un diseño
   // Si el foco está en un botón, Espacio/Enter lo pulsan (comportamiento normal del navegador)
   if ((e.code === "Space" || e.code === "Enter") && e.target.closest && e.target.closest("button")) return;
   // Acción de la tecla según los controles elegidos (por defecto: W saltar · S deslizarse · A/D carril · E rugido · P pausa, y también las flechas)
-  const act = C.action(k), a1 = game.versus ? C.action(k, "vs1") : null, a2 = game.versus ? C.action(k, "vs2") : null;
+  // Espacio salta siempre (salvo que la hayas asignado a otra acción)
+  const act = C.action(k) || (k === "Space" && !game.versus ? "jump" : null), a1 = game.versus ? C.action(k, "vs1") : null, a2 = game.versus ? C.action(k, "vs2") : null;
   if ("wasde".includes(k) && k.length === 1) e.preventDefault();
   if ((k.startsWith("Arrow") || act || a1 || a2) && ["playing", "paused", "over"].includes(st)) e.preventDefault();   // las flechas y el espacio no mueven la página
   if (game.versus) {   // mantener pulsado: deslizarse / caída rápida y planear

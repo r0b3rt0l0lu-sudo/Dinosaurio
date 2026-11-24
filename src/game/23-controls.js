@@ -8,12 +8,12 @@ const CONTROL_ACTIONS = {
   vs2: [["jump", "Saltar"], ["slide", "Deslizarse"], ["roar", "Rugido"], ["trap", "Trampa"]],
 };
 const CONTROL_PRESETS = {
-  wasd:   { name: "WASD", desc: "W saltar · S deslizarse · A/D carril · E rugido",
+  wasd:   { name: "WASD", desc: "W o Espacio saltar · S deslizarse · A/D carril · E rugido",
             solo: { jump: ["w", ""], slide: ["s", ""], laneUp: ["a", ""], laneDown: ["d", ""], roar: ["e", ""], trap: ["q", ""], pause: ["p", ""] } },
-  arrows: { name: "Flechas", desc: "↑ saltar · ↓ deslizarse · ←/→ carril · Espacio rugido",
-            solo: { jump: ["ArrowUp", ""], slide: ["ArrowDown", ""], laneUp: ["ArrowLeft", ""], laneDown: ["ArrowRight", ""], roar: ["Space", ""], trap: ["q", "ShiftRight"], pause: ["p", ""] } },
+  arrows: { name: "Flechas", desc: "↑ o Espacio saltar · ↓ deslizarse · ←/→ carril · Mayús rugido",
+            solo: { jump: ["ArrowUp", "Space"], slide: ["ArrowDown", ""], laneUp: ["ArrowLeft", ""], laneDown: ["ArrowRight", ""], roar: ["ShiftLeft", ""], trap: ["q", "ShiftRight"], pause: ["p", ""] } },
   both:   { name: "WASD + flechas", desc: "Las dos a la vez: juega como te resulte más cómodo",
-            solo: { jump: ["w", "ArrowUp"], slide: ["s", "ArrowDown"], laneUp: ["a", "ArrowLeft"], laneDown: ["d", "ArrowRight"], roar: ["e", "Space"], trap: ["q", "ShiftRight"], pause: ["p", ""] } },
+            solo: { jump: ["w", "ArrowUp"], slide: ["s", "ArrowDown"], laneUp: ["a", "ArrowLeft"], laneDown: ["d", "ArrowRight"], roar: ["e", "ShiftLeft"], trap: ["q", "ShiftRight"], pause: ["p", ""] } },
 };
 const CONTROL_VS_DEFAULT = {
   vs1: { jump: ["w", ""], slide: ["s", ""], roar: ["e", "d"], trap: ["a", "q"] },
@@ -69,6 +69,10 @@ class Controls {
         if (!used) { if (!t[0]) t[0] = "q"; else if (!t[1]) t[1] = "q"; } };
       addQ(["solo"], "solo"); addQ(["vs1", "vs2"], "vs1");
     }
+    if (!c.spaceJump) {   // (v28) Espacio pasa a saltar y el rugido a E / Mayús: se actualizan los ajustes guardados que no sean personalizados
+      c.spaceJump = 1;
+      if (c.preset !== "custom" && CONTROL_PRESETS[c.preset]) c.solo = clone(CONTROL_PRESETS[c.preset].solo);
+    }
     return c;
   }
   // Mapa tecla → acción de cada grupo (se recalcula al cambiar algo)
@@ -112,7 +116,7 @@ class Controls {
     if (this.tab === "solo") {
       h.push(`<div class="ctrl-presets">${Object.entries(CONTROL_PRESETS).map(([id, p]) => `<button class="btn${c.preset === id ? " sel" : ""}" data-preset="${id}"><b>${p.name}</b><small>${p.desc}</small></button>`).join("")}</div>`);
       h.push(`<div class="ctrl-list">${CONTROL_ACTIONS.solo.map(([a, n]) => row("solo", a, n)).join("")}</div>`);
-      h.push(`<p class="touch-hint">${c.preset === "custom" ? "✏️ Personalizado · " : ""}Pulsa una casilla y luego la tecla que quieras. <kbd>Retroceso</kbd> la quita · <kbd>Esc</kbd> cancela. Esc siempre pausa y M silencia.</p>`);
+      h.push(`<p class="touch-hint">${c.preset === "custom" ? "✏️ Personalizado · " : ""}Pulsa una casilla y luego la tecla que quieras. <kbd>Retroceso</kbd> la quita · ${BUILD.esc ? "<kbd>Esc</kbd> cancela. Esc siempre pausa y M silencia." : "P pausa y M silencia."}</p>`);
     } else {
       h.push(`<div class="ctrl-vs">${["vs1", "vs2"].map((s, i) => `<div><h3>J${i + 1} · carril de ${i ? "abajo" : "arriba"}</h3><div class="ctrl-list">${CONTROL_ACTIONS[s].map(([a, n]) => row(s, a, n)).join("")}</div></div>`).join("")}</div>`);
       h.push(`<div class="actions"><button class="btn" data-vs="swap">⇄ Intercambiar J1 y J2</button><button class="btn ghost" data-vs="reset">Restablecer</button></div>`);

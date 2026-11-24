@@ -193,7 +193,7 @@ const CONFIG = {
 // Con DEBUG activo no se consiguen logros.
 const DEBUG = false;
 // Versión que se está ejecutando (la pone tools/build.js): web o CrazyGames
-const BUILD = Object.assign({ target: "web", online: true, pwa: true, links: true, backup: true }, window.DR_BUILD || {});
+const BUILD = Object.assign({ target: "web", online: true, pwa: true, links: true, backup: true, esc: true }, window.DR_BUILD || {});
 for (const [k, cls] of [["online", "no-online"], ["pwa", "no-pwa"], ["backup", "no-backup"]]) document.body.classList.toggle(cls, !BUILD[k]);   // oculta lo que no existe en esta versión
 
 // =====================================================================
