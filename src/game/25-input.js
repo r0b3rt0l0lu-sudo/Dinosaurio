@@ -1,7 +1,9 @@
 // =====================================================================
 //  Entrada: teclado, gestos táctiles y botones en pantalla
 // =====================================================================
+platform.loadingStart();
 const game = new Game(document.getElementById("game"));
+platform.onAdAudio = on => game.sfx.adMute(on);   // el audio se para solo mientras un anuncio está en pantalla
 window.__game = game; window.__Obstacle = Obstacle; window.__applyLane = applyLane; window.__dbg = { HATS, drawRaptor, SE, SKINS_DATA }; // útil para depurar desde la consola
 game.showMenu();
 
@@ -127,6 +129,10 @@ document.addEventListener("touchmove", e => {
   if (dy > 30) { if (game.state === "playing") { game.player.downHeld = true; game.player.slide(); } touch.done = true; }
   else if (dy < -30) { game.primary(); touch.done = true; }
 }, { passive: false });
+// iOS: si el audio quedó en pausa (al volver de segundo plano), se reanuda dentro del siguiente gesto del jugador
+for (const ev of ["touchend", "click", "keydown"]) document.addEventListener(ev, () => {
+  const c = game.sfx.ctx; if (c && c.state !== "running" && !game.sfx.adMuted) { const p = c.resume(); if (p && p.catch) p.catch(() => {}); }
+}, { passive: true });
 document.addEventListener("touchend", e => {
   if (!touch) return;
   if (e.touches.length === 0) {
@@ -148,7 +154,7 @@ document.querySelectorAll("#touch button").forEach(b => b.addEventListener("poin
   }
 }));
 
-// App instalable (PWA): service worker y botón «Instalar app» (solo cuando se abre desde una dirección web)
+/*@web*/// App instalable (PWA): service worker y botón «Instalar app» (solo cuando se abre desde una dirección web; no existe en CrazyGames)
 let installPrompt = null;
 const isStandalone = () => matchMedia("(display-mode: fullscreen)").matches || matchMedia("(display-mode: standalone)").matches || navigator.standalone;
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => {});
@@ -167,6 +173,6 @@ document.addEventListener("pointerdown", () => {
   if (!isStandalone() || document.fullscreenElement) return;
   const el = document.documentElement; if (el.requestFullscreen) el.requestFullscreen().then(() => screen.orientation && screen.orientation.lock && screen.orientation.lock("landscape").catch(() => {})).catch(() => {});
 }, { once: true });
-
+/*@end*/
 document.addEventListener("visibilitychange", () => { if (document.hidden && game.state === "playing") game.setPaused(true); });
 

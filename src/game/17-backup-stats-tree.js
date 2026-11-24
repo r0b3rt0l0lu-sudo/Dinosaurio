@@ -38,7 +38,7 @@ class SaveBackup {
   open() { this.pending = null; this.sum.classList.add("hidden"); this.code.value = ""; this.say(""); this.refreshUndo(); this.el.classList.remove("hidden"); }
   close() { this.el.classList.add("hidden"); this.g.showMenu(); }
   say(text, kind = "") { this.msg.textContent = text; this.msg.className = "bk-msg " + kind; }
-  refreshUndo() { let has = false; try { has = !!localStorage.getItem(BACKUP_CONFIG.UNDO_KEY); } catch (e) {} document.getElementById("bkUndo").classList.toggle("hidden", !has); }
+  refreshUndo() { let has = false; try { has = !!platform.load(BACKUP_CONFIG.UNDO_KEY); } catch (e) {} document.getElementById("bkUndo").classList.toggle("hidden", !has); }
   // ----- Exportar -----
   async makeCode() {
     const s = this.g.save; s.save();
@@ -104,21 +104,22 @@ class SaveBackup {
   apply() {
     if (!this.pending) return;
     try {
-      const cur = localStorage.getItem(SAVE_KEY);   // copia del progreso actual para poder deshacer
-      if (cur) localStorage.setItem(BACKUP_CONFIG.UNDO_KEY, cur);
-      localStorage.setItem(SAVE_KEY, JSON.stringify(this.pending.data));
+      const cur = platform.load(SAVE_KEY);   // copia del progreso actual para poder deshacer
+      if (cur) platform.save(BACKUP_CONFIG.UNDO_KEY, cur);
+      platform.save(SAVE_KEY, JSON.stringify(this.pending.data));
     } catch (e) { this.say("No se ha podido escribir en el almacenamiento del navegador.", "err"); return; }
     this.say("¡Progreso cargado! Reiniciando…", "ok"); setTimeout(() => location.reload(), 400);
   }
   undo() {
     try {
-      const prev = localStorage.getItem(BACKUP_CONFIG.UNDO_KEY); if (!prev) return;
-      localStorage.setItem(SAVE_KEY, prev); localStorage.removeItem(BACKUP_CONFIG.UNDO_KEY);
+      const prev = platform.load(BACKUP_CONFIG.UNDO_KEY); if (!prev) return;
+      platform.save(SAVE_KEY, prev); platform.remove(BACKUP_CONFIG.UNDO_KEY);
     } catch (e) { this.say("No se ha podido restaurar.", "err"); return; }
     this.say("Guardado anterior restaurado. Reiniciando…", "ok"); setTimeout(() => location.reload(), 400);
   }
   // Aviso del menú: 7 días sin exportar y progreso importante
   needsReminder() {
+    if (!BUILD.backup) return false;   // en CrazyGames el progreso lo guarda la plataforma
     const d = this.g.save.data, since = d.lastExport || d.firstPlay; if (!since) return false;
     const days = (Date.now() - new Date(since).getTime()) / 864e5;
     const big = d.coins >= 1000 || d.owned.length > 2 || Object.keys(d.ach.unlocked).length >= 5 || d.completed >= 3 || (d.fossils || 0) >= 10;

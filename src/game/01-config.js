@@ -192,6 +192,9 @@ const CONFIG = {
 // Modo prueba: 5000 monedas, todos los niveles completados, teclas 1–9 y 0 = nivel y B = boss del nivel actual.
 // Con DEBUG activo no se consiguen logros.
 const DEBUG = false;
+// Versión que se está ejecutando (la pone tools/build.js): web o CrazyGames
+const BUILD = Object.assign({ target: "web", online: true, pwa: true, links: true, backup: true }, window.DR_BUILD || {});
+for (const [k, cls] of [["online", "no-online"], ["pwa", "no-pwa"], ["backup", "no-backup"]]) document.body.classList.toggle(cls, !BUILD[k]);   // oculta lo que no existe en esta versión
 
 // =====================================================================
 //  LOGROS — recompensas en monedas (y skins exclusivos). cat: carrera, jefes, habilidad, coleccion, ruleta, modos, secretos
@@ -517,7 +520,7 @@ const SYNERGIES = [
 ];
 // Pactos del altar de ámbar: ventaja fuerte con desventaja para toda la partida
 const PACTS = [
-  { id: "pacto-sangre", name: "Pacto de sangre", good: "+2 corazones en los jefes", bad: "El escudo (power-up) ya no aparece", mod: { bossHearts: v => v + 2, noShieldPowerup: () => 1 } },
+  { id: "pacto-sangre", name: "Pacto del corazón", good: "+2 corazones en los jefes", bad: "El escudo (power-up) ya no aparece", mod: { bossHearts: v => v + 2, noShieldPowerup: () => 1 } },
   { id: "pacto-oro", name: "Pacto del oro", good: "Monedas ×1,6", bad: "Los obstáculos aparecen un 25 % más a menudo", mod: { coinMult: v => v * 1.6, obstacleFreq: v => v * 1.25 } },
   { id: "pacto-bestia", name: "Pacto de la bestia", good: "Rugido casi sin recarga (1 s)", bad: "Los jefes tienen un 30 % más de vida", mod: { roarNoCd: () => 1, bossHpMult: v => v * 1.3 } },
   { id: "pacto-prisa", name: "Pacto de la prisa", good: "Puntuación ×1,25", bad: "El juego va un 20 % más rápido y pierdes el doble salto", mod: { speedMult: v => v * 1.2, scoreMult: v => v * 1.25, noDoubleJump: () => 1 } },
@@ -574,7 +577,7 @@ const RANDOM_MODS = [
 ];
 
 // --- Código secreto ---
-const SECRET_CODE = "P1kach0$6767";
+const SECRET_CODE = "R4pt0r$6767";
 function unlockAllUpgrades(g) {
   const s = g.save.data;
   for (const n of TREE_NODES) s.tree[n.id] = n.max;                                  // árbol de mejoras completo

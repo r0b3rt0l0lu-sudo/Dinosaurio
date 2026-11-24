@@ -50,13 +50,13 @@
       <button class="mm-back" data-back>← Carrera diaria</button>
       <div id="dailyBox" class="dl-box"></div>
       <button class="mm-btn mm-play" id="btnDaily">► CORRER LA DIARIA<small>Intentos ilimitados · cuenta tu mejor marca</small></button>
-      <button class="mm-btn" id="btnDailyRank"><i>🌍</i>Ranking mundial de hoy</button>
+      <button class="mm-btn need-online" id="btnDailyRank"><i>🌍</i>Ranking mundial de hoy</button>
     </section>
 
     <section id="mmMulti" class="mm-panel mm-sub-panel hidden">
       <button class="mm-back" data-back>← Multijugador</button>
       <div class="mm-tiles">
-        <button class="mm-tile mm-world" id="btnOnline"><i>🌐</i><b>Online</b><small>Carrera contra 1–3 jugadores de cualquier sitio</small></button>
+        <button class="mm-tile mm-world need-online" id="btnOnline"><i>🌐</i><b>Online</b><small>Carrera contra 1–3 jugadores de cualquier sitio</small></button>
         <button class="mm-tile" id="btnVersus"><i>👥</i><b>En este dispositivo</b><small>2 jugadores con el mismo teclado</small></button>
       </div>
     </section>
@@ -79,7 +79,7 @@
         <button class="mm-tile" id="btnTree"><i>🌳</i><b>Árbol</b><small id="menuTree">Mejoras permanentes</small><em class="mm-dot hidden" id="dotTree"></em></button>
         <button class="mm-tile" id="btnStats"><i>📊</i><b>Estadísticas</b><small>Tus números</small></button>
         <button class="mm-tile" id="btnAlbum"><i>📖</i><b>Álbum</b><small id="menuAlbum">Mejoras descubiertas</small></button>
-        <button class="mm-tile mm-world" id="btnRanking"><i>🌍</i><b>Ranking mundial</b><small id="menuRank">Compite con todos</small></button>
+        <button class="mm-tile mm-world need-online" id="btnRanking"><i>🌍</i><b>Ranking mundial</b><small id="menuRank">Compite con todos</small></button>
         <button class="mm-tile" id="btnMenuHistory"><i>📜</i><b>Historial</b><small>Tus últimas builds</small></button>
       </div>
     </section>
@@ -90,11 +90,11 @@
         <button class="mm-tile" id="btnManual"><i>📘</i><b>Manual</b><small>Todo sobre el juego</small></button>
         <button class="mm-tile" id="btnControls"><i>🎮</i><b>Controles</b><small>Elige tus teclas</small></button>
         <button class="mm-tile" id="btnTutorial"><i>🎓</i><b>Tutorial</b><small>Nivel de práctica</small></button>
-        <button class="mm-tile" id="btnBackup"><i>💾</i><b>Guardar / Cargar</b><small>Copia de tu progreso</small><em class="mm-dot hidden" id="dotBackup"></em></button>
+        <button class="mm-tile need-backup" id="btnBackup"><i>💾</i><b>Guardar / Cargar</b><small>Copia de tu progreso</small><em class="mm-dot hidden" id="dotBackup"></em></button>
         <button class="mm-tile" id="btnMute"><i>🔊</i><b>Sonido: SÍ</b></button>
         <button class="mm-tile" id="btnTips"><i>💡</i><b>Consejos: SÍ</b></button>
         <button class="mm-tile" id="btnTipsReset"><i>↺</i><b>Volver a ver los consejos</b></button>
-        <button class="mm-tile" id="btnInstall"><i>📲</i><b>Instalar app</b><small id="installSub">Juega a pantalla completa y sin conexión</small></button>
+        <button class="mm-tile need-pwa" id="btnInstall"><i>📲</i><b>Instalar app</b><small id="installSub">Juega a pantalla completa y sin conexión</small></button>
         <button class="mm-tile" id="btnCode"><i>🔑</i><b>Código secreto</b></button>
         <button class="mm-tile hidden" id="btnAllUps"><i>⚡</i><b>Todas las mejoras: SÍ</b><small>En cada partida (código)</small></button>
       </div>
@@ -107,9 +107,9 @@
   </div>
 
   <div class="mm-bottom">
-    <button class="bk-remind hidden" id="bkRemind">💾 Haz una copia de tu progreso</button>
+    <button class="bk-remind hidden need-backup" id="bkRemind">💾 Haz una copia de tu progreso</button>
     <span class="hidden" id="debugHint" style="color:#ff8a8a">MODO PRUEBA: 1–9 y 0 = nivel · B = boss · M montura · U mejora · K altar</span>
-    <span class="mm-ver">Versión 27 · <a href="privacy.html" style="color:inherit">Privacidad</a></span>
+    <span class="mm-ver">Versión 28<!--@web--> · <a href="privacy.html" style="color:inherit">Privacidad</a><!--@end--></span>
   </div>
 </div>
 
@@ -240,7 +240,7 @@
       <button class="btn gold" id="btnOverShop">Tienda</button>
       <button class="btn" id="btnMenu">Menú</button>
       <button class="btn ghost" id="btnHistory">Historial de builds</button>
-      <button class="btn ghost" id="btnOverRank">🌍 Ranking</button>
+      <button class="btn ghost need-online" id="btnOverRank">🌍 Ranking</button>
     </div>
   </div>
 </div>

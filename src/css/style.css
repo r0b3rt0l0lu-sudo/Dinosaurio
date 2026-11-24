@@ -784,3 +784,5 @@
   .chip:hover { border-color: var(--weak); } .chip.sel { background: var(--weak); color: #16111f; }
   .pet-ab { color: var(--go); }
   .skin.item.pets { border-color: var(--rc, var(--line)); }
+  /* Versiones: lo que no existe en una versión se oculta (CrazyGames: sin online, sin copias manuales, sin instalar app) */
+  body.no-online .need-online, body.no-backup .need-backup, body.no-pwa .need-pwa { display: none !important; }

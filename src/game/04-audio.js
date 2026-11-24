@@ -2,9 +2,9 @@
 //  Sonido (Web Audio API, todo sintetizado)
 // =====================================================================
 class Sfx {
-  constructor() { this.ctx = null; this.muted = false; this.noiseBuf = null; }
+  constructor() { this.ctx = null; this.muted = false; this.noiseBuf = null; this.adMuted = false; }
   unlock() {
-    if (this.ctx) { if (this.ctx.state === "suspended") this.ctx.resume(); return; }
+    if (this.ctx) { if (this.ctx.state === "suspended" && !this.adMuted) this.ctx.resume(); return; }
     try {
       this.ctx = new (window.AudioContext || window.webkitAudioContext)();
       const len = Math.floor(this.ctx.sampleRate * 0.6);
@@ -12,6 +12,11 @@ class Sfx {
       const d = this.noiseBuf.getChannelData(0);
       for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
     } catch (e) { this.ctx = null; }
+  }
+  // Durante un anuncio se congela todo el audio (aparte del botón de silencio del jugador)
+  adMute(on) {
+    this.adMuted = on; if (!this.ctx) return;
+    try { const p = on ? this.ctx.suspend() : this.ctx.resume(); if (p && p.catch) p.catch(() => {}); } catch (e) {}
   }
   tone(f1, f2, dur, type = "square", vol = 0.06, delay = 0) {
     if (this.muted || !this.ctx) return;

@@ -12,17 +12,19 @@ const RANK_MODES = [["daily", "📅 Diaria de hoy"], ["normal", "Normal"], ["har
 class Online {
   constructor(game) {
     this.g = game; this.sess = null; this.queue = [];
-    try { this.sess = JSON.parse(localStorage.getItem(ONLINE_CONFIG.SESSION_KEY) || "null"); } catch (e) {}
-    try { this.queue = JSON.parse(localStorage.getItem(ONLINE_CONFIG.QUEUE_KEY) || "[]"); } catch (e) {}
+    try { this.sess = JSON.parse(platform.load(ONLINE_CONFIG.SESSION_KEY) || "null"); } catch (e) {}
+    try { this.queue = JSON.parse(platform.load(ONLINE_CONFIG.QUEUE_KEY) || "[]"); } catch (e) {}
     if (!Array.isArray(this.queue)) this.queue = [];
+    if (!BUILD.online) return;   // versión sin online (CrazyGames): nunca se conecta a ningún servidor
     addEventListener("online", () => this.flush());
     setTimeout(() => this.flush(), 3000);
   }
   get nick() { return this.g.save.data.nick || ""; }
   get uid() { return this.sess && this.sess.user && this.sess.user.id; }
-  persist() { try { localStorage.setItem(ONLINE_CONFIG.SESSION_KEY, JSON.stringify(this.sess)); localStorage.setItem(ONLINE_CONFIG.QUEUE_KEY, JSON.stringify(this.queue.slice(-30))); } catch (e) {} }
+  persist() { try { platform.save(ONLINE_CONFIG.SESSION_KEY, JSON.stringify(this.sess)); platform.save(ONLINE_CONFIG.QUEUE_KEY, JSON.stringify(this.queue.slice(-30))); } catch (e) {} }
   // Petición a Supabase (con tiempo límite). auth = enviar la sesión del jugador
   async req(path, { method = "GET", body, auth = true, prefer } = {}, retry = true) {
+    if (!BUILD.online) throw new Error("Online no disponible en esta versión.");
     if (auth) await this.ensureSession();
     const headers = { apikey: ONLINE_CONFIG.KEY, "Content-Type": "application/json" };
     if (auth && this.sess) headers.Authorization = "Bearer " + this.sess.access_token;
@@ -65,6 +67,7 @@ class Online {
   // ----- Puntuaciones -----
   // Al acabar una partida (Game.bankRun). Solo si tienes apodo y no juegas con «todas las mejoras» del código
   submitRun(g) {
+    if (!BUILD.online) return;
     if (!this.nick || g.versus || g.tutorial || g.netRace || g.save.data.allUpgrades || g.score <= 0) return;
     const mode = g.daily ? "daily" : g.mode.id, day = g.daily ? g.dailyRace.today : dayKey();
     this.queue.push({ p_mode: mode, p_day: day, p_score: Math.floor(g.score), p_level: Math.min(99, g.level.level), p_seconds: Math.round(g.runTime * 10) / 10 });

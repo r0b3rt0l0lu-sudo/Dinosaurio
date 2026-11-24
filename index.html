@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Dino Runner</title>
+<meta name="description" content="Dino Runner: a pixel-art velociraptor runner with 10 worlds, bosses, skins and pets.">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#171225">
 <meta name="mobile-web-app-capable" content="yes">
@@ -12,6 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="Dino Runner">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
+<script>window.DR_BUILD = {"target":"web","online":true,"pwa":true,"links":true,"backup":true};</script>
 <style>
   :root { --bg: #14161f; --fg: #e8e6df; --muted: #9aa0b4; --card: #1b1e2e; --edge: #3b4163; --green: #4caf50; --gold: #e0a526; }
   * { box-sizing: border-box; }
@@ -799,6 +801,8 @@
   .chip:hover { border-color: var(--weak); } .chip.sel { background: var(--weak); color: #16111f; }
   .pet-ab { color: var(--go); }
   .skin.item.pets { border-color: var(--rc, var(--line)); }
+  /* Versiones: lo que no existe en una versión se oculta (CrazyGames: sin online, sin copias manuales, sin instalar app) */
+  body.no-online .need-online, body.no-backup .need-backup, body.no-pwa .need-pwa { display: none !important; }
 </style>
 </head>
 <body>
@@ -854,13 +858,13 @@
       <button class="mm-back" data-back>← Carrera diaria</button>
       <div id="dailyBox" class="dl-box"></div>
       <button class="mm-btn mm-play" id="btnDaily">► CORRER LA DIARIA<small>Intentos ilimitados · cuenta tu mejor marca</small></button>
-      <button class="mm-btn" id="btnDailyRank"><i>🌍</i>Ranking mundial de hoy</button>
+      <button class="mm-btn need-online" id="btnDailyRank"><i>🌍</i>Ranking mundial de hoy</button>
     </section>
 
     <section id="mmMulti" class="mm-panel mm-sub-panel hidden">
       <button class="mm-back" data-back>← Multijugador</button>
       <div class="mm-tiles">
-        <button class="mm-tile mm-world" id="btnOnline"><i>🌐</i><b>Online</b><small>Carrera contra 1–3 jugadores de cualquier sitio</small></button>
+        <button class="mm-tile mm-world need-online" id="btnOnline"><i>🌐</i><b>Online</b><small>Carrera contra 1–3 jugadores de cualquier sitio</small></button>
         <button class="mm-tile" id="btnVersus"><i>👥</i><b>En este dispositivo</b><small>2 jugadores con el mismo teclado</small></button>
       </div>
     </section>
@@ -883,7 +887,7 @@
         <button class="mm-tile" id="btnTree"><i>🌳</i><b>Árbol</b><small id="menuTree">Mejoras permanentes</small><em class="mm-dot hidden" id="dotTree"></em></button>
         <button class="mm-tile" id="btnStats"><i>📊</i><b>Estadísticas</b><small>Tus números</small></button>
         <button class="mm-tile" id="btnAlbum"><i>📖</i><b>Álbum</b><small id="menuAlbum">Mejoras descubiertas</small></button>
-        <button class="mm-tile mm-world" id="btnRanking"><i>🌍</i><b>Ranking mundial</b><small id="menuRank">Compite con todos</small></button>
+        <button class="mm-tile mm-world need-online" id="btnRanking"><i>🌍</i><b>Ranking mundial</b><small id="menuRank">Compite con todos</small></button>
         <button class="mm-tile" id="btnMenuHistory"><i>📜</i><b>Historial</b><small>Tus últimas builds</small></button>
       </div>
     </section>
@@ -894,11 +898,11 @@
         <button class="mm-tile" id="btnManual"><i>📘</i><b>Manual</b><small>Todo sobre el juego</small></button>
         <button class="mm-tile" id="btnControls"><i>🎮</i><b>Controles</b><small>Elige tus teclas</small></button>
         <button class="mm-tile" id="btnTutorial"><i>🎓</i><b>Tutorial</b><small>Nivel de práctica</small></button>
-        <button class="mm-tile" id="btnBackup"><i>💾</i><b>Guardar / Cargar</b><small>Copia de tu progreso</small><em class="mm-dot hidden" id="dotBackup"></em></button>
+        <button class="mm-tile need-backup" id="btnBackup"><i>💾</i><b>Guardar / Cargar</b><small>Copia de tu progreso</small><em class="mm-dot hidden" id="dotBackup"></em></button>
         <button class="mm-tile" id="btnMute"><i>🔊</i><b>Sonido: SÍ</b></button>
         <button class="mm-tile" id="btnTips"><i>💡</i><b>Consejos: SÍ</b></button>
         <button class="mm-tile" id="btnTipsReset"><i>↺</i><b>Volver a ver los consejos</b></button>
-        <button class="mm-tile" id="btnInstall"><i>📲</i><b>Instalar app</b><small id="installSub">Juega a pantalla completa y sin conexión</small></button>
+        <button class="mm-tile need-pwa" id="btnInstall"><i>📲</i><b>Instalar app</b><small id="installSub">Juega a pantalla completa y sin conexión</small></button>
         <button class="mm-tile" id="btnCode"><i>🔑</i><b>Código secreto</b></button>
         <button class="mm-tile hidden" id="btnAllUps"><i>⚡</i><b>Todas las mejoras: SÍ</b><small>En cada partida (código)</small></button>
       </div>
@@ -911,9 +915,9 @@
   </div>
 
   <div class="mm-bottom">
-    <button class="bk-remind hidden" id="bkRemind">💾 Haz una copia de tu progreso</button>
+    <button class="bk-remind hidden need-backup" id="bkRemind">💾 Haz una copia de tu progreso</button>
     <span class="hidden" id="debugHint" style="color:#ff8a8a">MODO PRUEBA: 1–9 y 0 = nivel · B = boss · M montura · U mejora · K altar</span>
-    <span class="mm-ver">Versión 27 · <a href="privacy.html" style="color:inherit">Privacidad</a></span>
+    <span class="mm-ver">Versión 28 · <a href="privacy.html" style="color:inherit">Privacidad</a></span>
   </div>
 </div>
 
@@ -1044,7 +1048,7 @@
       <button class="btn gold" id="btnOverShop">Tienda</button>
       <button class="btn" id="btnMenu">Menú</button>
       <button class="btn ghost" id="btnHistory">Historial de builds</button>
-      <button class="btn ghost" id="btnOverRank">🌍 Ranking</button>
+      <button class="btn ghost need-online" id="btnOverRank">🌍 Ranking</button>
     </div>
   </div>
 </div>
@@ -1299,6 +1303,137 @@
 </div>
 
 <!-- Kit Dino Runner: motor de skins -->
+<script>
+// =====================================================================
+//  platform.js — la ÚNICA parte del juego que habla con la plataforma (CrazyGames).
+//  El resto del juego solo llama a estas funciones; si mañana cambia la plataforma, solo se toca este archivo.
+//
+//  ESTADO ACTUAL: funciona SIN el SDK de CrazyGames.
+//    · Guardado en localStorage del navegador.
+//    · Idioma del navegador; móvil según el tipo de puntero.
+//    · Anuncios: no hay (los botones de anuncio se ocultan y el juego sigue igual).
+//
+//  PARA CONECTAR EL SDK (con la documentación oficial delante: https://docs.crazygames.com):
+//    1. En src/head.html, en el bloque marcado «@crazygames», descomenta la etiqueta <script> del SDK (TODO 1).
+//    2. Aquí abajo pon USE_SDK = true y completa cada TODO con la llamada real.
+//    3. Cuando quieras anuncios (fase Full Launch), pon ADS = true.
+//  Los nombres que aparecen en los TODO son orientativos (no los he podido comprobar): usa los de la documentación.
+// =====================================================================
+(function () {
+  "use strict";
+  const BUILD = window.DR_BUILD || { target: "web" };
+  const USE_SDK = false;   // ← interruptor del SDK de CrazyGames (desactivado)
+  const ADS = false;       // ← interruptor de anuncios (desactivado hasta la fase Full Launch)
+  const sdk = () => (USE_SDK && window.CrazyGames && window.CrazyGames.SDK) || null;
+
+  // Almacén local (puede fallar en modo privado o con las cookies bloqueadas: nunca rompe el juego)
+  const local = {
+    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } },
+    del(k) { try { localStorage.removeItem(k); } catch (e) {} },
+  };
+
+  let playing = false, loading = false, adBusy = false;
+
+  const platform = {
+    target: BUILD.target,
+    get adsEnabled() { return ADS && !!sdk() && !platform.adblock; },
+    adblock: false,
+    // Avisos para el juego: silenciar el audio SOLO cuando el anuncio empieza de verdad
+    onAdAudio: null,   // función(silenciar: true|false) que pone el juego
+
+    // ---------- Arranque ----------
+    async init() {
+      if (!sdk()) return;
+      try {
+        // TODO 2 · Inicializar el SDK (p. ej. await SDK.init()) antes de usar nada más.
+        // TODO 3 · Comprobar si hay bloqueador de anuncios y guardarlo en platform.adblock.
+      } catch (e) { console.warn("SDK de CrazyGames no disponible:", e); }
+    },
+
+    // ---------- Partida activa (el jugador está jugando de verdad) ----------
+    gameplayStart() {
+      if (playing) return; playing = true;
+      if (sdk()) { /* TODO 4 · Avisar de que empieza el juego activo (gameplay start). */ }
+    },
+    gameplayStop() {
+      if (!playing) return; playing = false;
+      if (sdk()) { /* TODO 5 · Avisar de que se para el juego activo (gameplay stop): pausa, muerte, menús. */ }
+    },
+    get isPlaying() { return playing; },
+
+    // ---------- Carga ----------
+    loadingStart() {
+      if (loading) return; loading = true;
+      if (sdk()) { /* TODO 6 · Avisar de que empieza la carga (loading start). */ }
+    },
+    loadingStop() {
+      if (!loading) return; loading = false;
+      if (sdk()) { /* TODO 7 · Avisar de que ha terminado la carga (loading stop). */ }
+    },
+
+    // ---------- Idioma y dispositivo ----------
+    // Código de idioma del jugador, p. ej. "es-ES" o "en-US"
+    getLocale() {
+      if (sdk()) { /* TODO 8 · Devolver el idioma que da el SDK (información del sistema / usuario: «locale»). */ }
+      return (navigator.languages && navigator.languages[0]) || navigator.language || "en";
+    },
+    // ¿Móvil o tableta?
+    isMobile() {
+      if (sdk()) { /* TODO 9 · Devolver si el SDK dice que el dispositivo es móvil o tableta (información del sistema). */ }
+      try { return matchMedia("(pointer: coarse)").matches && !matchMedia("(hover: hover)").matches; } catch (e) { return false; }
+    },
+
+    // ---------- Guardado (texto) ----------
+    save(key, value) {
+      if (sdk()) { /* TODO 10 · Guardar con el módulo de datos del SDK (además de localStorage, o en su lugar). */ }
+      return local.set(key, String(value));
+    },
+    load(key) {
+      if (sdk()) { /* TODO 11 · Leer con el módulo de datos del SDK (si devuelve algo, usarlo). */ }
+      return local.get(key);
+    },
+    remove(key) {
+      if (sdk()) { /* TODO 12 · Borrar con el módulo de datos del SDK. */ }
+      local.del(key);
+    },
+
+    // ---------- Anuncios ----------
+    // Anuncio a mitad de partida: SIEMPRE se resuelve (haya anuncio, error o bloqueador)
+    showMidgameAd() {
+      if (!platform.adsEnabled || adBusy) return Promise.resolve();
+      adBusy = true;
+      return new Promise(resolve => {
+        const done = () => { adBusy = false; if (platform.onAdAudio) platform.onAdAudio(false); resolve(); };
+        try {
+          // TODO 13 · Pedir un anuncio «midgame» al SDK con estos avisos:
+          //   al empezar el anuncio  → if (platform.onAdAudio) platform.onAdAudio(true);
+          //   al terminar            → done();
+          //   si hay error o no hay  → done();
+          done();
+        } catch (e) { done(); }
+      });
+    },
+    // Anuncio con recompensa: se resuelve a true (visto entero) o false (error, sin anuncio o bloqueador)
+    showRewardedAd() {
+      if (!platform.adsEnabled || adBusy) return Promise.resolve(false);
+      adBusy = true;
+      return new Promise(resolve => {
+        const end = ok => { adBusy = false; if (platform.onAdAudio) platform.onAdAudio(false); resolve(ok); };
+        try {
+          // TODO 14 · Pedir un anuncio «rewarded» al SDK con estos avisos:
+          //   al empezar el anuncio  → if (platform.onAdAudio) platform.onAdAudio(true);
+          //   al terminar bien       → end(true);
+          //   si hay error o no hay  → end(false);
+          end(false);
+        } catch (e) { end(false); }
+      });
+    },
+    get adBusy() { return adBusy; },
+  };
+  window.platform = platform;
+})();
+</script>
 <script>
 /* DinoSkinsEngine — motor de skins de velociraptor en pixel art (canvas 2D, sin dependencias).
    Uso: DinoSkinsEngine.init(datosJSON); luego drawDino(...) en cada frame del juego. */
@@ -1660,6 +1795,9 @@ const CONFIG = {
 // Modo prueba: 5000 monedas, todos los niveles completados, teclas 1–9 y 0 = nivel y B = boss del nivel actual.
 // Con DEBUG activo no se consiguen logros.
 const DEBUG = false;
+// Versión que se está ejecutando (la pone tools/build.js): web o CrazyGames
+const BUILD = Object.assign({ target: "web", online: true, pwa: true, links: true, backup: true }, window.DR_BUILD || {});
+for (const [k, cls] of [["online", "no-online"], ["pwa", "no-pwa"], ["backup", "no-backup"]]) document.body.classList.toggle(cls, !BUILD[k]);   // oculta lo que no existe en esta versión
 
 // =====================================================================
 //  LOGROS — recompensas en monedas (y skins exclusivos). cat: carrera, jefes, habilidad, coleccion, ruleta, modos, secretos
@@ -1985,7 +2123,7 @@ const SYNERGIES = [
 ];
 // Pactos del altar de ámbar: ventaja fuerte con desventaja para toda la partida
 const PACTS = [
-  { id: "pacto-sangre", name: "Pacto de sangre", good: "+2 corazones en los jefes", bad: "El escudo (power-up) ya no aparece", mod: { bossHearts: v => v + 2, noShieldPowerup: () => 1 } },
+  { id: "pacto-sangre", name: "Pacto del corazón", good: "+2 corazones en los jefes", bad: "El escudo (power-up) ya no aparece", mod: { bossHearts: v => v + 2, noShieldPowerup: () => 1 } },
   { id: "pacto-oro", name: "Pacto del oro", good: "Monedas ×1,6", bad: "Los obstáculos aparecen un 25 % más a menudo", mod: { coinMult: v => v * 1.6, obstacleFreq: v => v * 1.25 } },
   { id: "pacto-bestia", name: "Pacto de la bestia", good: "Rugido casi sin recarga (1 s)", bad: "Los jefes tienen un 30 % más de vida", mod: { roarNoCd: () => 1, bossHpMult: v => v * 1.3 } },
   { id: "pacto-prisa", name: "Pacto de la prisa", good: "Puntuación ×1,25", bad: "El juego va un 20 % más rápido y pierdes el doble salto", mod: { speedMult: v => v * 1.2, scoreMult: v => v * 1.25, noDoubleJump: () => 1 } },
@@ -2042,7 +2180,7 @@ const RANDOM_MODS = [
 ];
 
 // --- Código secreto ---
-const SECRET_CODE = "P1kach0$6767";
+const SECRET_CODE = "R4pt0r$6767";
 function unlockAllUpgrades(g) {
   const s = g.save.data;
   for (const n of TREE_NODES) s.tree[n.id] = n.max;                                  // árbol de mejoras completo
@@ -2709,9 +2847,9 @@ function drawIcon(c, type, x, y, s) {
 //  Sonido (Web Audio API, todo sintetizado)
 // =====================================================================
 class Sfx {
-  constructor() { this.ctx = null; this.muted = false; this.noiseBuf = null; }
+  constructor() { this.ctx = null; this.muted = false; this.noiseBuf = null; this.adMuted = false; }
   unlock() {
-    if (this.ctx) { if (this.ctx.state === "suspended") this.ctx.resume(); return; }
+    if (this.ctx) { if (this.ctx.state === "suspended" && !this.adMuted) this.ctx.resume(); return; }
     try {
       this.ctx = new (window.AudioContext || window.webkitAudioContext)();
       const len = Math.floor(this.ctx.sampleRate * 0.6);
@@ -2719,6 +2857,11 @@ class Sfx {
       const d = this.noiseBuf.getChannelData(0);
       for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
     } catch (e) { this.ctx = null; }
+  }
+  // Durante un anuncio se congela todo el audio (aparte del botón de silencio del jugador)
+  adMute(on) {
+    this.adMuted = on; if (!this.ctx) return;
+    try { const p = on ? this.ctx.suspend() : this.ctx.resume(); if (p && p.catch) p.catch(() => {}); } catch (e) {}
   }
   tone(f1, f2, dur, type = "square", vol = 0.06, delay = 0) {
     if (this.muted || !this.ctx) return;
@@ -2830,7 +2973,7 @@ const MUSIC = {
 
 
 // =====================================================================
-//  SaveManager: todo el progreso en localStorage (una sola clave, compatible con partidas antiguas)
+//  SaveManager: todo el progreso en una sola clave (platform.save / platform.load; compatible con partidas antiguas)
 // =====================================================================
 class SaveManager {
   constructor() {
@@ -2857,7 +3000,7 @@ class SaveManager {
   }
   load() {
     try {
-      const raw = localStorage.getItem(SAVE_KEY);
+      const raw = platform.load(SAVE_KEY);
       if (raw) {
         const d = JSON.parse(raw), num = v => Number.isFinite(v) ? Math.max(0, Math.floor(v)) : 0;
         if (d.records) { this.data.records.normal = num(d.records.normal); this.data.records.easy = num(d.records.easy); this.data.records.hard = num(d.records.hard); this.data.records.random = num(d.records.random); }
@@ -2916,7 +3059,7 @@ class SaveManager {
     SkinCatalog.designs = this.data.designs.map((x, i) => x && designSkin(x, i));
     SkinCatalog.rebuild(); this.syncCosmetics();
   }
-  save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(this.data)); } catch (e) {} }
+  save() { try { platform.save(SAVE_KEY, JSON.stringify(this.data)); } catch (e) {} }
   record(modeId) { return this.data.records[modeId] || 0; }
   markCompleted(level) { if (level > this.data.completed) { this.data.completed = level; this.save(); } }
   owns(id) {
@@ -9760,7 +9903,7 @@ class SaveBackup {
   open() { this.pending = null; this.sum.classList.add("hidden"); this.code.value = ""; this.say(""); this.refreshUndo(); this.el.classList.remove("hidden"); }
   close() { this.el.classList.add("hidden"); this.g.showMenu(); }
   say(text, kind = "") { this.msg.textContent = text; this.msg.className = "bk-msg " + kind; }
-  refreshUndo() { let has = false; try { has = !!localStorage.getItem(BACKUP_CONFIG.UNDO_KEY); } catch (e) {} document.getElementById("bkUndo").classList.toggle("hidden", !has); }
+  refreshUndo() { let has = false; try { has = !!platform.load(BACKUP_CONFIG.UNDO_KEY); } catch (e) {} document.getElementById("bkUndo").classList.toggle("hidden", !has); }
   // ----- Exportar -----
   async makeCode() {
     const s = this.g.save; s.save();
@@ -9826,21 +9969,22 @@ class SaveBackup {
   apply() {
     if (!this.pending) return;
     try {
-      const cur = localStorage.getItem(SAVE_KEY);   // copia del progreso actual para poder deshacer
-      if (cur) localStorage.setItem(BACKUP_CONFIG.UNDO_KEY, cur);
-      localStorage.setItem(SAVE_KEY, JSON.stringify(this.pending.data));
+      const cur = platform.load(SAVE_KEY);   // copia del progreso actual para poder deshacer
+      if (cur) platform.save(BACKUP_CONFIG.UNDO_KEY, cur);
+      platform.save(SAVE_KEY, JSON.stringify(this.pending.data));
     } catch (e) { this.say("No se ha podido escribir en el almacenamiento del navegador.", "err"); return; }
     this.say("¡Progreso cargado! Reiniciando…", "ok"); setTimeout(() => location.reload(), 400);
   }
   undo() {
     try {
-      const prev = localStorage.getItem(BACKUP_CONFIG.UNDO_KEY); if (!prev) return;
-      localStorage.setItem(SAVE_KEY, prev); localStorage.removeItem(BACKUP_CONFIG.UNDO_KEY);
+      const prev = platform.load(BACKUP_CONFIG.UNDO_KEY); if (!prev) return;
+      platform.save(SAVE_KEY, prev); platform.remove(BACKUP_CONFIG.UNDO_KEY);
     } catch (e) { this.say("No se ha podido restaurar.", "err"); return; }
     this.say("Guardado anterior restaurado. Reiniciando…", "ok"); setTimeout(() => location.reload(), 400);
   }
   // Aviso del menú: 7 días sin exportar y progreso importante
   needsReminder() {
+    if (!BUILD.backup) return false;   // en CrazyGames el progreso lo guarda la plataforma
     const d = this.g.save.data, since = d.lastExport || d.firstPlay; if (!since) return false;
     const days = (Date.now() - new Date(since).getTime()) / 864e5;
     const big = d.coins >= 1000 || d.owned.length > 2 || Object.keys(d.ach.unlocked).length >= 5 || d.completed >= 3 || (d.fossils || 0) >= 10;
@@ -11100,17 +11244,19 @@ const RANK_MODES = [["daily", "📅 Diaria de hoy"], ["normal", "Normal"], ["har
 class Online {
   constructor(game) {
     this.g = game; this.sess = null; this.queue = [];
-    try { this.sess = JSON.parse(localStorage.getItem(ONLINE_CONFIG.SESSION_KEY) || "null"); } catch (e) {}
-    try { this.queue = JSON.parse(localStorage.getItem(ONLINE_CONFIG.QUEUE_KEY) || "[]"); } catch (e) {}
+    try { this.sess = JSON.parse(platform.load(ONLINE_CONFIG.SESSION_KEY) || "null"); } catch (e) {}
+    try { this.queue = JSON.parse(platform.load(ONLINE_CONFIG.QUEUE_KEY) || "[]"); } catch (e) {}
     if (!Array.isArray(this.queue)) this.queue = [];
+    if (!BUILD.online) return;   // versión sin online (CrazyGames): nunca se conecta a ningún servidor
     addEventListener("online", () => this.flush());
     setTimeout(() => this.flush(), 3000);
   }
   get nick() { return this.g.save.data.nick || ""; }
   get uid() { return this.sess && this.sess.user && this.sess.user.id; }
-  persist() { try { localStorage.setItem(ONLINE_CONFIG.SESSION_KEY, JSON.stringify(this.sess)); localStorage.setItem(ONLINE_CONFIG.QUEUE_KEY, JSON.stringify(this.queue.slice(-30))); } catch (e) {} }
+  persist() { try { platform.save(ONLINE_CONFIG.SESSION_KEY, JSON.stringify(this.sess)); platform.save(ONLINE_CONFIG.QUEUE_KEY, JSON.stringify(this.queue.slice(-30))); } catch (e) {} }
   // Petición a Supabase (con tiempo límite). auth = enviar la sesión del jugador
   async req(path, { method = "GET", body, auth = true, prefer } = {}, retry = true) {
+    if (!BUILD.online) throw new Error("Online no disponible en esta versión.");
     if (auth) await this.ensureSession();
     const headers = { apikey: ONLINE_CONFIG.KEY, "Content-Type": "application/json" };
     if (auth && this.sess) headers.Authorization = "Bearer " + this.sess.access_token;
@@ -11153,6 +11299,7 @@ class Online {
   // ----- Puntuaciones -----
   // Al acabar una partida (Game.bankRun). Solo si tienes apodo y no juegas con «todas las mejoras» del código
   submitRun(g) {
+    if (!BUILD.online) return;
     if (!this.nick || g.versus || g.tutorial || g.netRace || g.save.data.allUpgrades || g.score <= 0) return;
     const mode = g.daily ? "daily" : g.mode.id, day = g.daily ? g.dailyRace.today : dayKey();
     this.queue.push({ p_mode: mode, p_day: day, p_score: Math.floor(g.score), p_level: Math.min(99, g.level.level), p_seconds: Math.round(g.runTime * 10) / 10 });
@@ -12839,7 +12986,9 @@ class Game {
 // =====================================================================
 //  Entrada: teclado, gestos táctiles y botones en pantalla
 // =====================================================================
+platform.loadingStart();
 const game = new Game(document.getElementById("game"));
+platform.onAdAudio = on => game.sfx.adMute(on);   // el audio se para solo mientras un anuncio está en pantalla
 window.__game = game; window.__Obstacle = Obstacle; window.__applyLane = applyLane; window.__dbg = { HATS, drawRaptor, SE, SKINS_DATA }; // útil para depurar desde la consola
 game.showMenu();
 
@@ -12965,6 +13114,10 @@ document.addEventListener("touchmove", e => {
   if (dy > 30) { if (game.state === "playing") { game.player.downHeld = true; game.player.slide(); } touch.done = true; }
   else if (dy < -30) { game.primary(); touch.done = true; }
 }, { passive: false });
+// iOS: si el audio quedó en pausa (al volver de segundo plano), se reanuda dentro del siguiente gesto del jugador
+for (const ev of ["touchend", "click", "keydown"]) document.addEventListener(ev, () => {
+  const c = game.sfx.ctx; if (c && c.state !== "running" && !game.sfx.adMuted) { const p = c.resume(); if (p && p.catch) p.catch(() => {}); }
+}, { passive: true });
 document.addEventListener("touchend", e => {
   if (!touch) return;
   if (e.touches.length === 0) {
@@ -12986,7 +13139,7 @@ document.querySelectorAll("#touch button").forEach(b => b.addEventListener("poin
   }
 }));
 
-// App instalable (PWA): service worker y botón «Instalar app» (solo cuando se abre desde una dirección web)
+// App instalable (PWA): service worker y botón «Instalar app» (solo cuando se abre desde una dirección web; no existe en CrazyGames)
 let installPrompt = null;
 const isStandalone = () => matchMedia("(display-mode: fullscreen)").matches || matchMedia("(display-mode: standalone)").matches || navigator.standalone;
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => {});
@@ -13031,10 +13184,17 @@ function loop(now) {
   const frameS = Math.max(0, (now - last) / 1000);   // nunca negativo (el primer fotograma puede llegar «antes»)
   if (!document.hidden && now > last) game.frameStat(now - last);
   last = Math.max(last, now);
-  try { advance(frameS); game.draw(); }
+  try { advance(frameS); game.draw(); syncGameplay(); }
   catch (e) { if (loopErrors++ < 5) console.error("Error en el bucle del juego:", e); }
 }
+// Avisa a la plataforma de cuándo se está jugando de verdad (no en menús, pausa, cuenta atrás ni anuncios)
+function syncGameplay() {
+  const active = game.state === "playing" && !(game.netWait > 0) && !document.hidden && !platform.adBusy;
+  if (active !== platform.isPlaying) active ? platform.gameplayStart() : platform.gameplayStop();
+}
 requestAnimationFrame(loop);
+// Arranque de la plataforma: la carga termina cuando ya se ve la portada
+platform.init().then(() => requestAnimationFrame(() => platform.loadingStop()));
 // =====================================================================
 //  Modo de depuración (?debug=1): prueba de física a distintas tasas de refresco.
 //  Simula fotogramas de 30, 60, 144 y 165 Hz con el MISMO bucle del juego (advance) y mide

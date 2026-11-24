@@ -21,7 +21,14 @@ function loop(now) {
   const frameS = Math.max(0, (now - last) / 1000);   // nunca negativo (el primer fotograma puede llegar «antes»)
   if (!document.hidden && now > last) game.frameStat(now - last);
   last = Math.max(last, now);
-  try { advance(frameS); game.draw(); }
+  try { advance(frameS); game.draw(); syncGameplay(); }
   catch (e) { if (loopErrors++ < 5) console.error("Error en el bucle del juego:", e); }
 }
+// Avisa a la plataforma de cuándo se está jugando de verdad (no en menús, pausa, cuenta atrás ni anuncios)
+function syncGameplay() {
+  const active = game.state === "playing" && !(game.netWait > 0) && !document.hidden && !platform.adBusy;
+  if (active !== platform.isPlaying) active ? platform.gameplayStart() : platform.gameplayStop();
+}
 requestAnimationFrame(loop);
+// Arranque de la plataforma: la carga termina cuando ya se ve la portada
+platform.init().then(() => requestAnimationFrame(() => platform.loadingStop()));

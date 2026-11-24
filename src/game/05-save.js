@@ -1,5 +1,5 @@
 // =====================================================================
-//  SaveManager: todo el progreso en localStorage (una sola clave, compatible con partidas antiguas)
+//  SaveManager: todo el progreso en una sola clave (platform.save / platform.load; compatible con partidas antiguas)
 // =====================================================================
 class SaveManager {
   constructor() {
@@ -26,7 +26,7 @@ class SaveManager {
   }
   load() {
     try {
-      const raw = localStorage.getItem(SAVE_KEY);
+      const raw = platform.load(SAVE_KEY);
       if (raw) {
         const d = JSON.parse(raw), num = v => Number.isFinite(v) ? Math.max(0, Math.floor(v)) : 0;
         if (d.records) { this.data.records.normal = num(d.records.normal); this.data.records.easy = num(d.records.easy); this.data.records.hard = num(d.records.hard); this.data.records.random = num(d.records.random); }
@@ -85,7 +85,7 @@ class SaveManager {
     SkinCatalog.designs = this.data.designs.map((x, i) => x && designSkin(x, i));
     SkinCatalog.rebuild(); this.syncCosmetics();
   }
-  save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(this.data)); } catch (e) {} }
+  save() { try { platform.save(SAVE_KEY, JSON.stringify(this.data)); } catch (e) {} }
   record(modeId) { return this.data.records[modeId] || 0; }
   markCompleted(level) { if (level > this.data.completed) { this.data.completed = level; this.save(); } }
   owns(id) {
