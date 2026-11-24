@@ -237,7 +237,9 @@
         <div id="overBuild" class="build-box"></div>
       </div>
     </div>
+    <p id="adMsg" class="ad-msg hidden"></p>
     <div class="actions over-actions">
+      <button class="btn primary hidden" id="btnAdDouble">🎬 ×2 monedas</button>
       <button class="btn primary" id="btnRetry">↻ Reintentar</button>
       <button class="btn gold" id="btnOverShop">Tienda</button>
       <button class="btn" id="btnMenu">Menú</button>
@@ -361,6 +363,19 @@
     <div class="actions"><button class="btn ghost" id="treeReset">Reiniciar árbol</button></div>
   </div>
 </div>
+
+<!-- Recompensa diaria -->
+<div id="loginScr" class="overlay scr hidden">
+  <div class="card scr-card login-card">
+    <h2 class="scr-title">🎁 Recompensa diaria</h2>
+    <p class="scr-sub" id="loginSub"></p>
+    <div class="login-days" id="loginDays"></div>
+    <div class="actions"><button class="btn primary" id="loginGet">Recoger</button></div>
+  </div>
+</div>
+
+<!-- Esperando un anuncio (no se puede tocar nada hasta que termina o falla) -->
+<div id="adWait" class="overlay hidden"><div class="ad-wait">⏳</div></div>
 
 <!-- Controles -->
 <div id="ctrlScr" class="overlay scr hidden">

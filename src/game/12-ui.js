@@ -52,7 +52,8 @@ class UI {
     bind("btnMute", () => game.toggleMute());
     bind("btnLang", () => game.setLang(I18N.lang === "es" ? "en" : "es"));
     bind("btnVibrate", () => { const d = game.save.data; d.vibrate = !d.vibrate; game.save.save(); this.updateMute(); if (d.vibrate) game.vibrate(40); });
-    bind("btnRetry", () => game.retry());
+    bind("btnRetry", () => game.retryWithAd());
+    bind("btnAdDouble", () => game.adDoubleCoins());
     bind("btnVersus", () => game.openPlay(true));
     bind("btnOnline", () => game.openNet());
     bind("btnOverShop", () => game.openShop("over"));
@@ -167,6 +168,10 @@ class UI {
   }
   showOver() {
     const g = this.game, s = g.save.data;
+    // Anuncio opcional de ×2 monedas: solo si hay anuncios (con bloqueador o sin SDK no aparece) y has ganado monedas
+    const adOk = platform.adsEnabled && !g.netRace && !g.versus && !g.tutorial && g.runCoinsInt > 0 && !g.adDoubled;
+    this.$("btnAdDouble").classList.toggle("hidden", !adOk); if (adOk) this.$("btnAdDouble").textContent = `🎬 ×2 monedas (+${g.runCoinsInt})`;
+    this.$("adMsg").classList.add("hidden");
     this.$("overSolo").classList.toggle("hidden", g.versus); this.$("overVs").classList.toggle("hidden", !g.versus);
     this.$("overAchList").classList.toggle("hidden", g.versus);
     this.$("overBuild").classList.toggle("hidden", g.versus); this.$("overFossils").classList.toggle("hidden", g.versus); this.$("overSeason").classList.toggle("hidden", g.versus); this.$("btnHistory").classList.toggle("hidden", g.versus);

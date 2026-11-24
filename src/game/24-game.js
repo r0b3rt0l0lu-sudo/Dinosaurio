@@ -19,7 +19,7 @@ class Game {
     this.ach = new AchievementManager(this);
     this.ui = new UI(this); this.shop = new Shop(this); this.roulette = new Roulette(this); this.manual = new Manual(this);
     this.rogue = new RogueManager(this); this.history = new BuildHistory(this); this.album = new UpgradeAlbum(this);
-    this.backup = new SaveBackup(this); this.statsMgr = new StatsManager(this); this.controls = new Controls(this); this.tree = new SkillTree(this); this.tips = new TipManager(this); this.season = new SeasonPass(this);
+    this.backup = new SaveBackup(this); this.statsMgr = new StatsManager(this); this.controls = new Controls(this); this.login = new LoginReward(this); this.tree = new SkillTree(this); this.tips = new TipManager(this); this.season = new SeasonPass(this);
     this.dailyRace = new DailyRace(this); this.daily = false;   // carrera diaria
     this.weather = new WeatherManager(this); this.pets = new PetManager(this);   // clima y mascota
     this.online = new Online(this); this.ranking = new RankingScreen(this); this.backup.setupCloud();
@@ -46,6 +46,7 @@ class Game {
   }
   newRun() { return { clean: true, secret: false, biomes: new Set(), eggs: {}, powerupTypes: new Set(), lastPowerup: 0, lastRoar: 0, lastLane: 0 }; }
   reset() {
+    this.adDoubled = false;   // el anuncio de ×2 monedas solo una vez por partida
     this.runTime = 0; this.distance = 0; this.runCoins = 0; this.runEggs = 0; this.speed = CONFIG.BASE_SPEED * this.mode.startSpeedMult; this.lives = this.mode.lives;
     this.effectMax = { shield: 1, magnet: 1, slowmo: 1, turbo: 1 };
     this.obstacles = []; this.coinsArr = []; this.powerups = []; this.particles = []; this.eggs = []; this.hatches = [];
@@ -96,13 +97,14 @@ class Game {
   // ----- Estados -----
   closeScreens() {
     this.ui.hideAll();
-    for (const el of [this.shop.el, this.roulette.el, this.manual.el, this.ach.el, this.history.el, this.album.el, this.rogue.screen.el, this.backup.el, this.statsMgr.el, this.tree.el, this.season.el, this.ranking.el, this.netScreen.el, this.netScreen.res, this.controls.el]) el.classList.add("hidden");
+    for (const el of [this.shop.el, this.roulette.el, this.manual.el, this.ach.el, this.history.el, this.album.el, this.rogue.screen.el, this.backup.el, this.statsMgr.el, this.tree.el, this.season.el, this.ranking.el, this.netScreen.el, this.netScreen.res, this.controls.el, this.login.el]) el.classList.add("hidden");
   }
   showMenu() {
     if (["playing", "paused", "choice", "tip"].includes(this.state) || (this.state === "over" && !this.banked)) this.bankRun();   // al abandonar se guardan las monedas
     const fromSub = MENU_STATES.includes(this.state) && this.state !== "menu" && this.state !== "play" || this.history.visible;   // vuelve al submenú de donde vino
     if (this.net && (this.netRace || this.net.mode !== "idle")) this.net.leaveAll();   // salir del online
     this.versus = false; this.daily = false; this.netRace = this.netCoop = this.netDraft = false; this.endTutorial(); this.reset(); this.state = "menu"; this.closeScreens(); this.ui.showMenu(fromSub);
+    this.login.check();   // recompensa diaria (una vez al día)
   }
   // ----- Tutorial (nivel de práctica) -----
   // Nivel secreto: partida completa desde el nivel 1 sin morir (ni perder vidas ni revivir)
@@ -211,6 +213,27 @@ class Game {
       o.trapBy = 2; o.trapName = String(from || "").slice(0, 3).toUpperCase(); this.obstacles.push(o);
     }
     this.sfx.trap(); this.floatText(p.laneT, p.x + 40, p.y + 110, `¡TRAMPA DE ${String(from || "RIVAL").toUpperCase()}! ${type.name.toUpperCase()}`, UI_T.info, 18);
+  }
+  // Reintentar desde el fin de partida: antes, un anuncio «midgame» si la plataforma lo permite (si no, al momento).
+  // Mientras se pide o se ve el anuncio no se puede tocar nada; si falla, se sigue igual.
+  async retryWithAd() {
+    if (this.netRace || this.adPending) return;
+    if (platform.adsEnabled) { this.adPending = true; this.showAdWait(true); try { await platform.showMidgameAd(); } finally { this.showAdWait(false); this.adPending = false; } }
+    this.retry();
+  }
+  showAdWait(on) { document.getElementById("adWait").classList.toggle("hidden", !on); }
+  // Anuncio con recompensa (opcional): duplica las monedas de esta partida, una vez. Si no hay anuncio, no hay premio
+  async adDoubleCoins() {
+    if (this.adDoubled || this.adPending || !platform.adsEnabled) return;
+    const earned = this.runCoinsInt; if (earned <= 0) return;
+    this.adPending = true; this.showAdWait(true);
+    let ok = false; try { ok = await platform.showRewardedAd(); } finally { this.showAdWait(false); this.adPending = false; }
+    const msg = document.getElementById("adMsg"); msg.classList.remove("hidden");
+    if (ok) {
+      this.adDoubled = true; this.save.data.coins += earned; this.save.save(); this.sfx.jackpot();
+      msg.textContent = `🎬 ¡+${earned} monedas!`; msg.className = "ad-msg ok";
+      document.getElementById("btnAdDouble").classList.add("hidden"); document.getElementById("overWallet").textContent = this.save.data.coins;
+    } else { msg.textContent = "Ahora no hay ningún anuncio disponible. Inténtalo más tarde."; msg.className = "ad-msg"; }
   }
   retry() { if (this.netRace) return; if (this.versus) this.startVersus(); else if (this.tutorial) this.startTutorial(); else if (this.daily) this.startDaily(); else this.start(); }
   startDaily() { this.start("normal", 1, true); }

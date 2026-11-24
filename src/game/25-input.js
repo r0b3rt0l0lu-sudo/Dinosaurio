@@ -19,6 +19,7 @@ const keyOf = e => (e.code === "Space" ? "Space" : /^Key[A-Z]$/.test(e.code) ? e
 const C = game.controls;   // teclas configurables (Opciones → Controles)
 addEventListener("keydown", e => {
   const k = keyOf(e), st = game.state;
+  if (game.adPending) { e.preventDefault(); return; }   // durante un anuncio no se hace nada
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;           // escribir el nombre de un diseño
   // Si el foco está en un botón, Espacio/Enter lo pulsan (comportamiento normal del navegador)
   if ((e.code === "Space" || e.code === "Enter") && e.target.closest && e.target.closest("button")) return;
@@ -48,6 +49,7 @@ addEventListener("keydown", e => {
   if (game.ranking.visible) { if (k === "Escape") game.ranking.close(); return; }
   if (game.backup.visible) { if (k === "Escape") game.backup.close(); return; }
   if (game.controls.visible) { if (k === "Escape") game.controls.close(); return; }
+  if (game.login.visible) { if (["w", "Enter", "Space", "Escape"].includes(k) || act === "jump") game.login.collect(); return; }   // recompensa diaria
   if (game.tips.visible) { if (["w", "Enter", "Escape", "ArrowUp"].includes(k) || e.code === "Space" || act === "jump") game.tips.close(); return; }
   if (st === "choice") {   // elección de mejora o pacto: A/D o flechas + W/Intro, R barajar, Q saltar, 1–4 directa
     const S = game.rogue.screen;
@@ -85,7 +87,7 @@ addEventListener("keydown", e => {
       if (k === "Escape" && N.mode !== "racing") { N.leaveAll(); game.showMenu(); }
       return;
     }
-    if (k === "w" || act === "jump") game.retry();
+    if (k === "w" || act === "jump") game.retryWithAd();
     else if (k === "t") game.openShop("over");
     else if (k === "Escape") game.showMenu();
   } else if (st === "paused") {

@@ -66,6 +66,7 @@ class SaveManager {
         if (Array.isArray(d.roars)) this.data.roars = d.roars.filter(t => SHOP_ROAR_BY_ID[t]);
         if (this.data.roars.includes(d.roar)) this.data.roar = d.roar;
         if (Array.isArray(d.pets)) this.data.pets = d.pets.filter(t => PET_BY_ID[t]);
+        if (obj(d.login) && typeof d.login.last === "string") this.data.login = { last: d.login.last.slice(0, 10), streak: Math.max(0, Math.min(999, d.login.streak | 0)) };
         if (obj(d.pet) && this.data.pets.includes(d.pet.id)) { const hx = v => typeof v === "string" && /^#[0-9a-f]{6}$/i.test(v);
           this.data.pet = { id: d.pet.id, body: hx(d.pet.body) ? d.pet.body : PET_BY_ID[d.pet.id].body, accent: hx(d.pet.accent) ? d.pet.accent : PET_BY_ID[d.pet.id].accent, name: String(d.pet.name || PET_BY_ID[d.pet.id].name).slice(0, 14),
             pattern: PET_PATTERN_IDS.includes(d.pet.pattern) ? d.pet.pattern : "liso", aura: PET_AURA_IDS.includes(d.pet.aura) ? d.pet.aura : "none" }; }

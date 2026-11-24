@@ -2071,5 +2071,15 @@ window.I18N_EN = {
 "{0} · NIVEL {1} · {2} · {3} PUNTOS": "{0} · LEVEL {1} · {2} · {3} POINTS",
 "{0} · Nivel {1} · {2} · {3} puntos": "{0} · Level {1} · {2} · {3} points",
 "Tu build": "Your build",
-"¿Seguro? Toca otra vez": "Sure? Tap again"
+"¿Seguro? Toca otra vez": "Sure? Tap again",
+"🎁 Recompensa diaria": "🎁 Daily reward",
+"Día {0} de {1} · si faltas un día, la racha vuelve al día 1": "Day {0} of {1} · miss a day and your streak goes back to day 1",
+"Día {0}": "Day {0}",
+"Día {0} de {1}": "Day {0} of {1}",
+"Recoger": "Collect",
+"🎬 ×2 monedas": "🎬 ×2 coins",
+"🎬 ×2 monedas (+{0})": "🎬 ×2 coins (+{0})",
+"🎬 ¡+{0} monedas!": "🎬 +{0} coins!",
+"Ahora no hay ningún anuncio disponible. Inténtalo más tarde.": "There's no ad available right now. Please try again later.",
+"+{0} monedas · +{1} 🥚": "+{0} coins · +{1} 🥚"
 };

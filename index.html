@@ -840,6 +840,25 @@
   .btn.confirm { background: var(--weak, #ffd23f) !important; color: #16111f !important; animation: ctrlPulse .6s ease-in-out infinite alternate; }
   /* La línea de ayuda crece en pantallas grandes */
   .help { font-size: clamp(10px, .75vw, 14px); line-height: 1.9; }
+  /* Recompensa diaria */
+  .login-card { max-width: 640px; }
+  .login-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin: 14px 0 16px; }
+  .login-day { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; background: var(--surface-2); border: 2px solid var(--line); box-shadow: inset 0 2px 0 var(--bevel); }
+  .login-day small { font-family: var(--f-title); font-size: 9px; color: var(--text-dim); }
+  .login-day b { font-family: var(--f-title); font-weight: 400; font-size: 13px; color: var(--weak); white-space: nowrap; }
+  .login-day b .coin { width: 10px; height: 10px; display: inline-block; }
+  .login-day em { font-style: normal; font-size: 11px; }
+  .login-day.done { opacity: .45; } .login-day.done small::after { content: " ✔"; color: var(--go); }
+  .login-day.today { outline: 3px solid var(--weak); background: #3d3160; transform: translateY(-3px); }
+  @media (max-width: 560px) { .login-days { grid-template-columns: repeat(4, 1fr); } }
+  /* Anuncios: espera (bloquea la pantalla) y aviso discreto si no hay anuncio */
+  #adWait { z-index: 60; background: rgba(8, 6, 14, .72); }
+  .ad-wait { font-size: 40px; animation: ctrlPulse .6s ease-in-out infinite alternate; }
+  .ad-msg { margin: 4px 0 0; font-size: 12px; color: var(--text-dim); } .ad-msg.ok { color: var(--go); font-family: var(--f-title); }
+  #loginScr { background: rgba(10, 8, 18, .86); z-index: 30; }
+  .login-card { background: linear-gradient(180deg, #2a2145, #1c1630) !important; border: 3px solid var(--line); box-shadow: inset 0 2px 0 var(--bevel), 8px 8px 0 rgba(0,0,0,.45) !important; padding: 18px 20px 20px; }
+  .login-card .scr-title { font-size: clamp(24px, 4vw, 38px); }
+  .login-card .scr-sub { font-size: 11px; }
 </style>
 </head>
 <body>
@@ -1082,7 +1101,9 @@
         <div id="overBuild" class="build-box"></div>
       </div>
     </div>
+    <p id="adMsg" class="ad-msg hidden"></p>
     <div class="actions over-actions">
+      <button class="btn primary hidden" id="btnAdDouble">🎬 ×2 monedas</button>
       <button class="btn primary" id="btnRetry">↻ Reintentar</button>
       <button class="btn gold" id="btnOverShop">Tienda</button>
       <button class="btn" id="btnMenu">Menú</button>
@@ -1206,6 +1227,19 @@
     <div class="actions"><button class="btn ghost" id="treeReset">Reiniciar árbol</button></div>
   </div>
 </div>
+
+<!-- Recompensa diaria -->
+<div id="loginScr" class="overlay scr hidden">
+  <div class="card scr-card login-card">
+    <h2 class="scr-title">🎁 Recompensa diaria</h2>
+    <p class="scr-sub" id="loginSub"></p>
+    <div class="login-days" id="loginDays"></div>
+    <div class="actions"><button class="btn primary" id="loginGet">Recoger</button></div>
+  </div>
+</div>
+
+<!-- Esperando un anuncio (no se puede tocar nada hasta que termina o falla) -->
+<div id="adWait" class="overlay hidden"><div class="ad-wait">⏳</div></div>
 
 <!-- Controles -->
 <div id="ctrlScr" class="overlay scr hidden">
@@ -3416,7 +3450,17 @@ window.I18N_EN = {
 "{0} · NIVEL {1} · {2} · {3} PUNTOS": "{0} · LEVEL {1} · {2} · {3} POINTS",
 "{0} · Nivel {1} · {2} · {3} puntos": "{0} · Level {1} · {2} · {3} points",
 "Tu build": "Your build",
-"¿Seguro? Toca otra vez": "Sure? Tap again"
+"¿Seguro? Toca otra vez": "Sure? Tap again",
+"🎁 Recompensa diaria": "🎁 Daily reward",
+"Día {0} de {1} · si faltas un día, la racha vuelve al día 1": "Day {0} of {1} · miss a day and your streak goes back to day 1",
+"Día {0}": "Day {0}",
+"Día {0} de {1}": "Day {0} of {1}",
+"Recoger": "Collect",
+"🎬 ×2 monedas": "🎬 ×2 coins",
+"🎬 ×2 monedas (+{0})": "🎬 ×2 coins (+{0})",
+"🎬 ¡+{0} monedas!": "🎬 +{0} coins!",
+"Ahora no hay ningún anuncio disponible. Inténtalo más tarde.": "There's no ad available right now. Please try again later.",
+"+{0} monedas · +{1} 🥚": "+{0} coins · +{1} 🥚"
 };
 </script>
 <script>
@@ -5315,6 +5359,7 @@ class SaveManager {
         if (Array.isArray(d.roars)) this.data.roars = d.roars.filter(t => SHOP_ROAR_BY_ID[t]);
         if (this.data.roars.includes(d.roar)) this.data.roar = d.roar;
         if (Array.isArray(d.pets)) this.data.pets = d.pets.filter(t => PET_BY_ID[t]);
+        if (obj(d.login) && typeof d.login.last === "string") this.data.login = { last: d.login.last.slice(0, 10), streak: Math.max(0, Math.min(999, d.login.streak | 0)) };
         if (obj(d.pet) && this.data.pets.includes(d.pet.id)) { const hx = v => typeof v === "string" && /^#[0-9a-f]{6}$/i.test(v);
           this.data.pet = { id: d.pet.id, body: hx(d.pet.body) ? d.pet.body : PET_BY_ID[d.pet.id].body, accent: hx(d.pet.accent) ? d.pet.accent : PET_BY_ID[d.pet.id].accent, name: String(d.pet.name || PET_BY_ID[d.pet.id].name).slice(0, 14),
             pattern: PET_PATTERN_IDS.includes(d.pet.pattern) ? d.pet.pattern : "liso", aura: PET_AURA_IDS.includes(d.pet.aura) ? d.pet.aura : "none" }; }
@@ -9979,7 +10024,8 @@ class UI {
     bind("btnMute", () => game.toggleMute());
     bind("btnLang", () => game.setLang(I18N.lang === "es" ? "en" : "es"));
     bind("btnVibrate", () => { const d = game.save.data; d.vibrate = !d.vibrate; game.save.save(); this.updateMute(); if (d.vibrate) game.vibrate(40); });
-    bind("btnRetry", () => game.retry());
+    bind("btnRetry", () => game.retryWithAd());
+    bind("btnAdDouble", () => game.adDoubleCoins());
     bind("btnVersus", () => game.openPlay(true));
     bind("btnOnline", () => game.openNet());
     bind("btnOverShop", () => game.openShop("over"));
@@ -10094,6 +10140,10 @@ class UI {
   }
   showOver() {
     const g = this.game, s = g.save.data;
+    // Anuncio opcional de ×2 monedas: solo si hay anuncios (con bloqueador o sin SDK no aparece) y has ganado monedas
+    const adOk = platform.adsEnabled && !g.netRace && !g.versus && !g.tutorial && g.runCoinsInt > 0 && !g.adDoubled;
+    this.$("btnAdDouble").classList.toggle("hidden", !adOk); if (adOk) this.$("btnAdDouble").textContent = `🎬 ×2 monedas (+${g.runCoinsInt})`;
+    this.$("adMsg").classList.add("hidden");
     this.$("overSolo").classList.toggle("hidden", g.versus); this.$("overVs").classList.toggle("hidden", !g.versus);
     this.$("overAchList").classList.toggle("hidden", g.versus);
     this.$("overBuild").classList.toggle("hidden", g.versus); this.$("overFossils").classList.toggle("hidden", g.versus); this.$("overSeason").classList.toggle("hidden", g.versus); this.$("btnHistory").classList.toggle("hidden", g.versus);
@@ -13534,6 +13584,47 @@ class PetManager {
 }
 
 // =====================================================================
+//  Recompensa diaria: la primera vez que abres el juego cada día recoges un premio.
+//  Racha de 7 días (si faltas un día, vuelve al día 1). Se ve el premio de cada día, sin trucos ni sorpresas.
+//  No sale la primera vez que se juega (para entrar a jugar directamente).
+// =====================================================================
+const LOGIN_REWARDS = [
+  { coins: 50 }, { coins: 75 }, { coins: 100 }, { coins: 125 }, { coins: 150 }, { coins: 200 }, { coins: 300, eggs: 2 },
+];
+class LoginReward {
+  constructor(game) {
+    this.g = game; const $ = id => document.getElementById(id);
+    this.el = $("loginScr"); this.list = $("loginDays"); this.sub = $("loginSub");
+    $("loginGet").addEventListener("click", e => { e.currentTarget.blur(); this.collect(); });
+  }
+  get d() { const s = this.g.save.data; return s.login || (s.login = { last: "", streak: 0 }); }
+  get visible() { return !this.el.classList.contains("hidden"); }
+  // Día de la racha que toca hoy (1–7)
+  get day() { const d = this.d; return d.last === yesterdayKey() ? (d.streak % LOGIN_REWARDS.length) + 1 : 1; }
+  get pending() { const s = this.g.save.data; return this.d.last !== dayKey() && s.tutorialDone && !BUILD_IS_RECORDING(); }
+  // Se llama al volver a la portada
+  check() { if (this.pending && this.g.state === "menu") this.open(); }
+  open() {
+    const today = this.day;
+    this.sub.textContent = `Día ${today} de ${LOGIN_REWARDS.length} · si faltas un día, la racha vuelve al día 1`;
+    this.list.innerHTML = LOGIN_REWARDS.map((r, i) => `<div class="login-day${i + 1 < today ? " done" : i + 1 === today ? " today" : ""}">
+      <small>Día ${i + 1}</small><b><span class="coin"></span> ${r.coins}</b>${r.eggs ? `<em>+${r.eggs} 🥚</em>` : ""}</div>`).join("");
+    this.el.classList.remove("hidden"); this.g.sfx.click();
+  }
+  collect() {
+    const g = this.g, d = this.d, s = g.save.data, day = this.day, r = LOGIN_REWARDS[day - 1];
+    if (d.last === dayKey()) { this.el.classList.add("hidden"); return; }
+    d.streak = day === 1 ? 1 : d.streak + 1; d.last = dayKey();
+    s.coins += r.coins; if (r.eggs) s.eggWallet += r.eggs;
+    g.save.save(); g.sfx.jackpot();
+    this.el.classList.add("hidden");
+    g.ach.queue.push({ title: "🎁 Recompensa diaria", name: `+${r.coins} monedas` + (r.eggs ? ` · +${r.eggs} 🥚` : ""), line: `Día ${day} de ${LOGIN_REWARDS.length}`, cat: "coleccion" });
+    g.ui.showMenu(true);
+  }
+}
+// En el modo grabación (?record=1) no sale nada que tape el juego
+const BUILD_IS_RECORDING = () => /[?&]record=1/.test(location.search);
+// =====================================================================
 //  Online (Supabase): apodo, ranking mundial y guardado en la nube con código.
 //  Sin dependencias: habla con la API REST de Supabase con fetch. Inicio de sesión anónimo (sin correo).
 //  Si no hay conexión el juego sigue igual: las puntuaciones esperan en una cola y se envían más tarde.
@@ -14451,7 +14542,7 @@ class Game {
     this.ach = new AchievementManager(this);
     this.ui = new UI(this); this.shop = new Shop(this); this.roulette = new Roulette(this); this.manual = new Manual(this);
     this.rogue = new RogueManager(this); this.history = new BuildHistory(this); this.album = new UpgradeAlbum(this);
-    this.backup = new SaveBackup(this); this.statsMgr = new StatsManager(this); this.controls = new Controls(this); this.tree = new SkillTree(this); this.tips = new TipManager(this); this.season = new SeasonPass(this);
+    this.backup = new SaveBackup(this); this.statsMgr = new StatsManager(this); this.controls = new Controls(this); this.login = new LoginReward(this); this.tree = new SkillTree(this); this.tips = new TipManager(this); this.season = new SeasonPass(this);
     this.dailyRace = new DailyRace(this); this.daily = false;   // carrera diaria
     this.weather = new WeatherManager(this); this.pets = new PetManager(this);   // clima y mascota
     this.online = new Online(this); this.ranking = new RankingScreen(this); this.backup.setupCloud();
@@ -14478,6 +14569,7 @@ class Game {
   }
   newRun() { return { clean: true, secret: false, biomes: new Set(), eggs: {}, powerupTypes: new Set(), lastPowerup: 0, lastRoar: 0, lastLane: 0 }; }
   reset() {
+    this.adDoubled = false;   // el anuncio de ×2 monedas solo una vez por partida
     this.runTime = 0; this.distance = 0; this.runCoins = 0; this.runEggs = 0; this.speed = CONFIG.BASE_SPEED * this.mode.startSpeedMult; this.lives = this.mode.lives;
     this.effectMax = { shield: 1, magnet: 1, slowmo: 1, turbo: 1 };
     this.obstacles = []; this.coinsArr = []; this.powerups = []; this.particles = []; this.eggs = []; this.hatches = [];
@@ -14528,13 +14620,14 @@ class Game {
   // ----- Estados -----
   closeScreens() {
     this.ui.hideAll();
-    for (const el of [this.shop.el, this.roulette.el, this.manual.el, this.ach.el, this.history.el, this.album.el, this.rogue.screen.el, this.backup.el, this.statsMgr.el, this.tree.el, this.season.el, this.ranking.el, this.netScreen.el, this.netScreen.res, this.controls.el]) el.classList.add("hidden");
+    for (const el of [this.shop.el, this.roulette.el, this.manual.el, this.ach.el, this.history.el, this.album.el, this.rogue.screen.el, this.backup.el, this.statsMgr.el, this.tree.el, this.season.el, this.ranking.el, this.netScreen.el, this.netScreen.res, this.controls.el, this.login.el]) el.classList.add("hidden");
   }
   showMenu() {
     if (["playing", "paused", "choice", "tip"].includes(this.state) || (this.state === "over" && !this.banked)) this.bankRun();   // al abandonar se guardan las monedas
     const fromSub = MENU_STATES.includes(this.state) && this.state !== "menu" && this.state !== "play" || this.history.visible;   // vuelve al submenú de donde vino
     if (this.net && (this.netRace || this.net.mode !== "idle")) this.net.leaveAll();   // salir del online
     this.versus = false; this.daily = false; this.netRace = this.netCoop = this.netDraft = false; this.endTutorial(); this.reset(); this.state = "menu"; this.closeScreens(); this.ui.showMenu(fromSub);
+    this.login.check();   // recompensa diaria (una vez al día)
   }
   // ----- Tutorial (nivel de práctica) -----
   // Nivel secreto: partida completa desde el nivel 1 sin morir (ni perder vidas ni revivir)
@@ -14643,6 +14736,27 @@ class Game {
       o.trapBy = 2; o.trapName = String(from || "").slice(0, 3).toUpperCase(); this.obstacles.push(o);
     }
     this.sfx.trap(); this.floatText(p.laneT, p.x + 40, p.y + 110, `¡TRAMPA DE ${String(from || "RIVAL").toUpperCase()}! ${type.name.toUpperCase()}`, UI_T.info, 18);
+  }
+  // Reintentar desde el fin de partida: antes, un anuncio «midgame» si la plataforma lo permite (si no, al momento).
+  // Mientras se pide o se ve el anuncio no se puede tocar nada; si falla, se sigue igual.
+  async retryWithAd() {
+    if (this.netRace || this.adPending) return;
+    if (platform.adsEnabled) { this.adPending = true; this.showAdWait(true); try { await platform.showMidgameAd(); } finally { this.showAdWait(false); this.adPending = false; } }
+    this.retry();
+  }
+  showAdWait(on) { document.getElementById("adWait").classList.toggle("hidden", !on); }
+  // Anuncio con recompensa (opcional): duplica las monedas de esta partida, una vez. Si no hay anuncio, no hay premio
+  async adDoubleCoins() {
+    if (this.adDoubled || this.adPending || !platform.adsEnabled) return;
+    const earned = this.runCoinsInt; if (earned <= 0) return;
+    this.adPending = true; this.showAdWait(true);
+    let ok = false; try { ok = await platform.showRewardedAd(); } finally { this.showAdWait(false); this.adPending = false; }
+    const msg = document.getElementById("adMsg"); msg.classList.remove("hidden");
+    if (ok) {
+      this.adDoubled = true; this.save.data.coins += earned; this.save.save(); this.sfx.jackpot();
+      msg.textContent = `🎬 ¡+${earned} monedas!`; msg.className = "ad-msg ok";
+      document.getElementById("btnAdDouble").classList.add("hidden"); document.getElementById("overWallet").textContent = this.save.data.coins;
+    } else { msg.textContent = "Ahora no hay ningún anuncio disponible. Inténtalo más tarde."; msg.className = "ad-msg"; }
   }
   retry() { if (this.netRace) return; if (this.versus) this.startVersus(); else if (this.tutorial) this.startTutorial(); else if (this.daily) this.startDaily(); else this.start(); }
   startDaily() { this.start("normal", 1, true); }
@@ -15315,6 +15429,7 @@ const keyOf = e => (e.code === "Space" ? "Space" : /^Key[A-Z]$/.test(e.code) ? e
 const C = game.controls;   // teclas configurables (Opciones → Controles)
 addEventListener("keydown", e => {
   const k = keyOf(e), st = game.state;
+  if (game.adPending) { e.preventDefault(); return; }   // durante un anuncio no se hace nada
   if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;           // escribir el nombre de un diseño
   // Si el foco está en un botón, Espacio/Enter lo pulsan (comportamiento normal del navegador)
   if ((e.code === "Space" || e.code === "Enter") && e.target.closest && e.target.closest("button")) return;
@@ -15344,6 +15459,7 @@ addEventListener("keydown", e => {
   if (game.ranking.visible) { if (k === "Escape") game.ranking.close(); return; }
   if (game.backup.visible) { if (k === "Escape") game.backup.close(); return; }
   if (game.controls.visible) { if (k === "Escape") game.controls.close(); return; }
+  if (game.login.visible) { if (["w", "Enter", "Space", "Escape"].includes(k) || act === "jump") game.login.collect(); return; }   // recompensa diaria
   if (game.tips.visible) { if (["w", "Enter", "Escape", "ArrowUp"].includes(k) || e.code === "Space" || act === "jump") game.tips.close(); return; }
   if (st === "choice") {   // elección de mejora o pacto: A/D o flechas + W/Intro, R barajar, Q saltar, 1–4 directa
     const S = game.rogue.screen;
@@ -15381,7 +15497,7 @@ addEventListener("keydown", e => {
       if (k === "Escape" && N.mode !== "racing") { N.leaveAll(); game.showMenu(); }
       return;
     }
-    if (k === "w" || act === "jump") game.retry();
+    if (k === "w" || act === "jump") game.retryWithAd();
     else if (k === "t") game.openShop("over");
     else if (k === "Escape") game.showMenu();
   } else if (st === "paused") {

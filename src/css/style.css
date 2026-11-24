@@ -823,3 +823,22 @@
   .btn.confirm { background: var(--weak, #ffd23f) !important; color: #16111f !important; animation: ctrlPulse .6s ease-in-out infinite alternate; }
   /* La línea de ayuda crece en pantallas grandes */
   .help { font-size: clamp(10px, .75vw, 14px); line-height: 1.9; }
+  /* Recompensa diaria */
+  .login-card { max-width: 640px; }
+  .login-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin: 14px 0 16px; }
+  .login-day { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; background: var(--surface-2); border: 2px solid var(--line); box-shadow: inset 0 2px 0 var(--bevel); }
+  .login-day small { font-family: var(--f-title); font-size: 9px; color: var(--text-dim); }
+  .login-day b { font-family: var(--f-title); font-weight: 400; font-size: 13px; color: var(--weak); white-space: nowrap; }
+  .login-day b .coin { width: 10px; height: 10px; display: inline-block; }
+  .login-day em { font-style: normal; font-size: 11px; }
+  .login-day.done { opacity: .45; } .login-day.done small::after { content: " ✔"; color: var(--go); }
+  .login-day.today { outline: 3px solid var(--weak); background: #3d3160; transform: translateY(-3px); }
+  @media (max-width: 560px) { .login-days { grid-template-columns: repeat(4, 1fr); } }
+  /* Anuncios: espera (bloquea la pantalla) y aviso discreto si no hay anuncio */
+  #adWait { z-index: 60; background: rgba(8, 6, 14, .72); }
+  .ad-wait { font-size: 40px; animation: ctrlPulse .6s ease-in-out infinite alternate; }
+  .ad-msg { margin: 4px 0 0; font-size: 12px; color: var(--text-dim); } .ad-msg.ok { color: var(--go); font-family: var(--f-title); }
+  #loginScr { background: rgba(10, 8, 18, .86); z-index: 30; }
+  .login-card { background: linear-gradient(180deg, #2a2145, #1c1630) !important; border: 3px solid var(--line); box-shadow: inset 0 2px 0 var(--bevel), 8px 8px 0 rgba(0,0,0,.45) !important; padding: 18px 20px 20px; }
+  .login-card .scr-title { font-size: clamp(24px, 4vw, 38px); }
+  .login-card .scr-sub { font-size: 11px; }
