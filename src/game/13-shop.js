@@ -90,8 +90,9 @@ class Shop {
   flashWallet() { this.walletEl.classList.remove("flash"); void this.walletEl.offsetWidth; this.walletEl.classList.add("flash"); }
   confirmAnim(card) { card.classList.remove("bought"); void card.offsetWidth; card.classList.add("bought"); }
   buyCheckpoint(e) {
-    const g = this.game;
+    const g = this.game, C = g.checkpoints;
     g.sfx.unlock();
+    if (!C.owned(e.level) && C.unlocked(e.level) && !this.confirmBuy(e.btn, C.price(e.level))) return;
     if (g.checkpoints.buy(e.level)) { g.sfx.buy(); this.confirmAnim(e.card); this.flashWallet(); g.ach.event("purchase", { kind: "checkpoint", level: e.level }); }
     else { g.sfx.denied(); e.card.classList.add("denied"); }
     this.refresh();
@@ -159,14 +160,26 @@ class Shop {
   }
   itemAction(e) {
     const g = this.game, s = g.save, on = this.isOn(e); g.sfx.unlock();
+    if (!this.ownsItem(e) && !this.confirmBuy(e.btn, e.it.price)) return;
     if (this.ownsItem(e)) { if (e.kind === "hats") s.equipHat(e.it.slot, on ? null : e.it.id); else s.equipItem(e.kind, on ? null : e.it.id); g.sfx.click(); if (e.kind === "pets") g.pets.tag = 3; }
     else if (e.kind === "hats" ? s.buyHat(e.it) : s.buyItem(e.kind, e.it)) { g.sfx.buy(); this.confirmAnim(e.card); this.flashWallet(); g.ach.event("purchase", { kind: e.kind, price: e.it.price }); }
     else { g.sfx.denied(); e.card.classList.add("denied"); }
     this.refresh();
   }
+  // Móvil: la primera vez que tocas «Comprar» pide confirmación («¿Seguro? Toca otra vez») para no comprar sin querer
+  confirmBuy(btn, price) {
+    if (!this.game.touchMode || this.game.save.data.coins < price) return true;
+    const now = performance.now();
+    if (btn.dataset.armed && now - btn.dataset.armed < 3000) { delete btn.dataset.armed; btn.classList.remove("confirm"); return true; }
+    btn.dataset.armed = now; btn.classList.add("confirm"); btn.textContent = I18N.t("¿Seguro? Toca otra vez");
+    this.game.sfx.click();
+    setTimeout(() => { if (btn.dataset.armed && performance.now() - btn.dataset.armed >= 2900) { delete btn.dataset.armed; btn.classList.remove("confirm"); this.refresh(); } }, 3000);
+    return false;
+  }
   action(e) {
     const g = this.game, s = g.save, skin = SkinCatalog.get(e.id);
     g.sfx.unlock();
+    if (!s.owns(e.id) && e.kind === "shop" && !this.confirmBuy(e.btn || e.card.querySelector("button"), skin.price)) return;
     if (s.owns(e.id)) { s.equip(e.id); g.onSkinChanged(); g.sfx.click(); }
     else if (e.kind === "shop" && s.buy(skin)) {
       g.sfx.buy(); this.confirmAnim(e.card); this.flashWallet();

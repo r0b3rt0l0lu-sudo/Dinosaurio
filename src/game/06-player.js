@@ -48,7 +48,7 @@ class Player {
     if (M) return M.jump();   // montado: cada montura decide qué hace W
     const k = g.versus ? 1 : g.stat("jumpMult");
     if (this.onGround) {
-      this.vy = CONFIG.JUMP_VELOCITY * k; this.onGround = false; this.jumps = 1; this.slideTime = 0; this.fastFall = false; this.glideT = 0;
+      this.vy = CONFIG.JUMP_VELOCITY * k; this.onGround = false; this.jumps = 1; this.slideTime = 0; this.fastFall = false; this.glideT = 0; this.jumpAt = g.time;
       g.sfx.jump(); g.ach.event("jump");
     } else if (this.jumps < this.maxJumps) {
       this.vy = CONFIG.DOUBLE_JUMP_VELOCITY * k; this.jumps++; this.fastFall = false;
@@ -56,6 +56,11 @@ class Player {
       const bonus = g.versus ? 0 : g.stat("airJumpCoins");   // sinergia Bailarín
       if (bonus) { g.addRunCoins(bonus, true); g.floatText(this.laneT, this.x + 30, this.y + 90, `+${bonus}`, "#ffd23f", 18); }
     }
+  }
+  // Móvil: el mismo toque que acaba de saltar se desliza hacia abajo → se anula ese salto (vuelve al suelo)
+  cancelJump() {
+    if (this.mount || this.onGround || this.jumps !== 1 || this.vy <= 0 || this.game.time - (this.jumpAt || 0) > 0.3) return false;
+    this.y = 0; this.vy = 0; this.onGround = true; this.jumps = 0; return true;
   }
   slide() {
     const M = this.mount; if (this.game.netWait > 0) return; if (M) return M.down(true);

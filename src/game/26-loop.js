@@ -21,7 +21,7 @@ function loop(now) {
   const frameS = Math.max(0, (now - last) / 1000);   // nunca negativo (el primer fotograma puede llegar «antes»)
   if (!document.hidden && now > last) game.frameStat(now - last);
   last = Math.max(last, now);
-  try { advance(frameS); game.draw(); syncGameplay(); }
+  try { advance(frameS); game.draw(); syncGameplay(); updateTouchButtons(); }
   catch (e) { if (loopErrors++ < 5) console.error("Error en el bucle del juego:", e); }
 }
 // Avisa a la plataforma de cuándo se está jugando de verdad (no en menús, pausa, cuenta atrás ni anuncios)

@@ -786,3 +786,40 @@
   .skin.item.pets { border-color: var(--rc, var(--line)); }
   /* Versiones: lo que no existe en una versión se oculta (CrazyGames: sin online, sin copias manuales, sin instalar app) */
   body.no-online .need-online, body.no-backup .need-backup, body.no-pwa .need-pwa { display: none !important; }
+  /* ===== Cualquier pantalla (16:9 de CrazyGames, móvil y tableta): todo cabe sin desplazar la página ===== */
+  body {
+    -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -webkit-touch-callout: none;
+    padding: max(8px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+    gap: 8px;
+  }
+  #stage, canvas#game { touch-action: none; }
+  #stage { width: min(100%, calc((100vh - 84px) * 2.5)); }                 /* escritorio: debajo, la línea de ayuda */
+  .help { max-width: 100%; }
+  @media (max-height: 560px) { .help { font-size: 9px; line-height: 16px; } }
+  body.touch #stage { width: min(100%, calc((100vh - 100px) * 2.5)); }     /* móvil: debajo, los botones */
+  /* Botones del móvil: ▲ ▼ abajo a la izquierda y 📢 (y 🎯 online) abajo a la derecha; el hueco del centro también salta */
+  body.touch #touch { display: flex; justify-content: flex-start; align-items: stretch; width: 100%; max-width: none; height: 72px; gap: 10px; }
+  #touch button { flex: 0 0 auto; min-width: 86px; min-height: 64px; }
+  #touch button[data-act="laneDown"] { margin-right: auto; }
+  #touch button.roar { min-width: 120px; position: relative; overflow: hidden; }
+  #touch button.roar::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--cd, 0) * 100%); background: rgba(22, 17, 31, .6); pointer-events: none; }
+  #touch button.roar.ready { animation: roarReady 1s ease-in-out infinite alternate; }
+  @keyframes roarReady { to { box-shadow: inset 0 2px 0 rgba(255,255,255,.5), 0 4px 0 var(--line), 0 0 26px rgba(255,154,60,.75); } }
+  /* Pausa: arriba a la derecha, sobre el juego (48 × 48 para el dedo) */
+  #stage > .t-pause { display: none; position: absolute; top: 6px; right: 6px; z-index: 4; width: 48px; height: 48px; min-height: 0; padding: 0;
+    align-items: center; justify-content: center; font-family: var(--f-title); font-size: 14px; color: var(--text);
+    background: rgba(22, 17, 31, .55); border: 2px solid var(--line); box-shadow: 0 3px 0 var(--line); touch-action: none; }
+  #stage > .t-pause:active { transform: translateY(2px); background: rgba(61, 49, 96, .85); }
+  body.touch #stage > .t-pause { display: flex; }
+  body.touch #stage > .t-pause small { display: none; }
+  /* Portada: si no cabe, se ve desde arriba (sin cortar el logo) y se compacta en pantallas bajas */
+  .mm-center { justify-content: flex-start; }
+  .mm-center > :first-child { margin-top: auto; } .mm-center > :last-child { margin-bottom: auto; }
+  @media (max-height: 500px) { .mm-title { font-size: 34px; } .mm-top, .mm-bottom { padding: 8px 14px; } .mm-play { padding: 8px 16px 6px; } }
+  /* Fin de partida: los botones (Reintentar…) siempre a la vista, aunque el resto tenga que desplazarse */
+  .over-card .over-actions { position: sticky; bottom: -20px; z-index: 2; margin: 0 -22px -20px; padding: 10px 12px 14px; background: linear-gradient(180deg, rgba(27,22,44,0), var(--surface, #231b38) 30%); }
+  @media (max-height: 560px) { .over-title { font-size: 36px; } .over-grid { margin: 6px 0 8px; gap: 10px; } .over-card .stats { margin: 6px 0; } }
+  /* Confirmación de compra en el móvil */
+  .btn.confirm { background: var(--weak, #ffd23f) !important; color: #16111f !important; animation: ctrlPulse .6s ease-in-out infinite alternate; }
+  /* La línea de ayuda crece en pantallas grandes */
+  .help { font-size: clamp(10px, .75vw, 14px); line-height: 1.9; }

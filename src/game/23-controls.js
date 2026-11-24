@@ -23,7 +23,11 @@ const CONTROL_RESERVED = ["Escape", "m", "Tab"];   // Esc (pausa / volver), M (s
 const KEY_NAMES = { ArrowUp: "↑", ArrowDown: "↓", ArrowLeft: "←", ArrowRight: "→", Space: "Espacio", Enter: "Intro", Escape: "Esc", Backspace: "Retroceso",
   ShiftLeft: "Mayús izq.", ShiftRight: "Mayús der.", ControlLeft: "Ctrl izq.", ControlRight: "Ctrl der.", AltLeft: "Alt", AltRight: "Alt Gr", CapsLock: "Bloq Mayús",
   Insert: "Insert", Delete: "Supr", Home: "Inicio", End: "Fin", PageUp: "Re Pág", PageDown: "Av Pág" };
-const keyName = k => !k ? "—" : KEY_NAMES[k] || (k.length === 1 ? k.toUpperCase() : k.replace(/^Key|^Digit|^Numpad/, "").replace(/^(.)/, m => m.toUpperCase()));
+// Nombre visible de cada tecla. Las letras se guardan por posición (QWERTY); si el navegador lo permite, se muestra la letra
+// de TU teclado (en AZERTY la tecla de saltar se ve como «Z»)
+const KEY_LAYOUT = new Map();
+try { if (navigator.keyboard && navigator.keyboard.getLayoutMap) navigator.keyboard.getLayoutMap().then(m => { m.forEach((v, k) => KEY_LAYOUT.set(k, v)); if (window.__game) window.__game.controls.applyLabels(); }).catch(() => {}); } catch (e) {}
+const keyName = k => !k ? "—" : KEY_NAMES[k] || (/^[a-z]$/.test(k) ? (KEY_LAYOUT.get("Key" + k.toUpperCase()) || k).toUpperCase() : k.length === 1 ? k.toUpperCase() : k.replace(/^Key|^Digit|^Numpad/, "").replace(/^(.)/, m => m.toUpperCase()));
 const clone = o => JSON.parse(JSON.stringify(o));
 
 class Controls {

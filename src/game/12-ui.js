@@ -361,7 +361,7 @@ class UI {
     drawBuildHud(c, g);
     if (g.stat("eggArrow")) drawEggArrow(c, g);
 
-    this.drawRoarRing(c, W - 48, 46, g.roarCd, g.roarCdMax || g.mode.roarCooldown, g.touchMode ? "" : g.controls.label("roar"), "RUGIDO");
+    if (!g.touchMode) this.drawRoarRing(c, W - 48, 46, g.roarCd, g.roarCdMax || g.mode.roarCooldown, g.controls.label("roar"), "RUGIDO");   // en el móvil la recarga se ve en el botón 📢 (y aquí va la pausa)
     if (g.netRace) {   // carrera online: posiciones, trampas y cuenta atrás
       g.net.drawHud(c, this);
       if (g.netWait > 0) {

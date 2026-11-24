@@ -803,6 +803,43 @@
   .skin.item.pets { border-color: var(--rc, var(--line)); }
   /* Versiones: lo que no existe en una versión se oculta (CrazyGames: sin online, sin copias manuales, sin instalar app) */
   body.no-online .need-online, body.no-backup .need-backup, body.no-pwa .need-pwa { display: none !important; }
+  /* ===== Cualquier pantalla (16:9 de CrazyGames, móvil y tableta): todo cabe sin desplazar la página ===== */
+  body {
+    -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -webkit-touch-callout: none;
+    padding: max(8px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+    gap: 8px;
+  }
+  #stage, canvas#game { touch-action: none; }
+  #stage { width: min(100%, calc((100vh - 84px) * 2.5)); }                 /* escritorio: debajo, la línea de ayuda */
+  .help { max-width: 100%; }
+  @media (max-height: 560px) { .help { font-size: 9px; line-height: 16px; } }
+  body.touch #stage { width: min(100%, calc((100vh - 100px) * 2.5)); }     /* móvil: debajo, los botones */
+  /* Botones del móvil: ▲ ▼ abajo a la izquierda y 📢 (y 🎯 online) abajo a la derecha; el hueco del centro también salta */
+  body.touch #touch { display: flex; justify-content: flex-start; align-items: stretch; width: 100%; max-width: none; height: 72px; gap: 10px; }
+  #touch button { flex: 0 0 auto; min-width: 86px; min-height: 64px; }
+  #touch button[data-act="laneDown"] { margin-right: auto; }
+  #touch button.roar { min-width: 120px; position: relative; overflow: hidden; }
+  #touch button.roar::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--cd, 0) * 100%); background: rgba(22, 17, 31, .6); pointer-events: none; }
+  #touch button.roar.ready { animation: roarReady 1s ease-in-out infinite alternate; }
+  @keyframes roarReady { to { box-shadow: inset 0 2px 0 rgba(255,255,255,.5), 0 4px 0 var(--line), 0 0 26px rgba(255,154,60,.75); } }
+  /* Pausa: arriba a la derecha, sobre el juego (48 × 48 para el dedo) */
+  #stage > .t-pause { display: none; position: absolute; top: 6px; right: 6px; z-index: 4; width: 48px; height: 48px; min-height: 0; padding: 0;
+    align-items: center; justify-content: center; font-family: var(--f-title); font-size: 14px; color: var(--text);
+    background: rgba(22, 17, 31, .55); border: 2px solid var(--line); box-shadow: 0 3px 0 var(--line); touch-action: none; }
+  #stage > .t-pause:active { transform: translateY(2px); background: rgba(61, 49, 96, .85); }
+  body.touch #stage > .t-pause { display: flex; }
+  body.touch #stage > .t-pause small { display: none; }
+  /* Portada: si no cabe, se ve desde arriba (sin cortar el logo) y se compacta en pantallas bajas */
+  .mm-center { justify-content: flex-start; }
+  .mm-center > :first-child { margin-top: auto; } .mm-center > :last-child { margin-bottom: auto; }
+  @media (max-height: 500px) { .mm-title { font-size: 34px; } .mm-top, .mm-bottom { padding: 8px 14px; } .mm-play { padding: 8px 16px 6px; } }
+  /* Fin de partida: los botones (Reintentar…) siempre a la vista, aunque el resto tenga que desplazarse */
+  .over-card .over-actions { position: sticky; bottom: -20px; z-index: 2; margin: 0 -22px -20px; padding: 10px 12px 14px; background: linear-gradient(180deg, rgba(27,22,44,0), var(--surface, #231b38) 30%); }
+  @media (max-height: 560px) { .over-title { font-size: 36px; } .over-grid { margin: 6px 0 8px; gap: 10px; } .over-card .stats { margin: 6px 0; } }
+  /* Confirmación de compra en el móvil */
+  .btn.confirm { background: var(--weak, #ffd23f) !important; color: #16111f !important; animation: ctrlPulse .6s ease-in-out infinite alternate; }
+  /* La línea de ayuda crece en pantallas grandes */
+  .help { font-size: clamp(10px, .75vw, 14px); line-height: 1.9; }
 </style>
 </head>
 <body>
@@ -3375,7 +3412,11 @@ window.I18N_EN = {
 "{0} sinergias": "{0} synergies",
 "🏆 {0}": "🏆 {0}",
 "🌍 Enviado al ranking mundial como {0}": "🌍 Sent to the world ranking as {0}",
-"🌍 Enviado al ranking mundial como": "🌍 Sent to the world ranking as"
+"🌍 Enviado al ranking mundial como": "🌍 Sent to the world ranking as",
+"{0} · NIVEL {1} · {2} · {3} PUNTOS": "{0} · LEVEL {1} · {2} · {3} POINTS",
+"{0} · Nivel {1} · {2} · {3} puntos": "{0} · Level {1} · {2} · {3} points",
+"Tu build": "Your build",
+"¿Seguro? Toca otra vez": "Sure? Tap again"
 };
 </script>
 <script>
@@ -5417,7 +5458,7 @@ class Player {
     if (M) return M.jump();   // montado: cada montura decide qué hace W
     const k = g.versus ? 1 : g.stat("jumpMult");
     if (this.onGround) {
-      this.vy = CONFIG.JUMP_VELOCITY * k; this.onGround = false; this.jumps = 1; this.slideTime = 0; this.fastFall = false; this.glideT = 0;
+      this.vy = CONFIG.JUMP_VELOCITY * k; this.onGround = false; this.jumps = 1; this.slideTime = 0; this.fastFall = false; this.glideT = 0; this.jumpAt = g.time;
       g.sfx.jump(); g.ach.event("jump");
     } else if (this.jumps < this.maxJumps) {
       this.vy = CONFIG.DOUBLE_JUMP_VELOCITY * k; this.jumps++; this.fastFall = false;
@@ -5425,6 +5466,11 @@ class Player {
       const bonus = g.versus ? 0 : g.stat("airJumpCoins");   // sinergia Bailarín
       if (bonus) { g.addRunCoins(bonus, true); g.floatText(this.laneT, this.x + 30, this.y + 90, `+${bonus}`, "#ffd23f", 18); }
     }
+  }
+  // Móvil: el mismo toque que acaba de saltar se desliza hacia abajo → se anula ese salto (vuelve al suelo)
+  cancelJump() {
+    if (this.mount || this.onGround || this.jumps !== 1 || this.vy <= 0 || this.game.time - (this.jumpAt || 0) > 0.3) return false;
+    this.y = 0; this.vy = 0; this.onGround = true; this.jumps = 0; return true;
   }
   slide() {
     const M = this.mount; if (this.game.netWait > 0) return; if (M) return M.down(true);
@@ -10242,7 +10288,7 @@ class UI {
     drawBuildHud(c, g);
     if (g.stat("eggArrow")) drawEggArrow(c, g);
 
-    this.drawRoarRing(c, W - 48, 46, g.roarCd, g.roarCdMax || g.mode.roarCooldown, g.touchMode ? "" : g.controls.label("roar"), "RUGIDO");
+    if (!g.touchMode) this.drawRoarRing(c, W - 48, 46, g.roarCd, g.roarCdMax || g.mode.roarCooldown, g.controls.label("roar"), "RUGIDO");   // en el móvil la recarga se ve en el botón 📢 (y aquí va la pausa)
     if (g.netRace) {   // carrera online: posiciones, trampas y cuenta atrás
       g.net.drawHud(c, this);
       if (g.netWait > 0) {
@@ -10408,8 +10454,9 @@ class Shop {
   flashWallet() { this.walletEl.classList.remove("flash"); void this.walletEl.offsetWidth; this.walletEl.classList.add("flash"); }
   confirmAnim(card) { card.classList.remove("bought"); void card.offsetWidth; card.classList.add("bought"); }
   buyCheckpoint(e) {
-    const g = this.game;
+    const g = this.game, C = g.checkpoints;
     g.sfx.unlock();
+    if (!C.owned(e.level) && C.unlocked(e.level) && !this.confirmBuy(e.btn, C.price(e.level))) return;
     if (g.checkpoints.buy(e.level)) { g.sfx.buy(); this.confirmAnim(e.card); this.flashWallet(); g.ach.event("purchase", { kind: "checkpoint", level: e.level }); }
     else { g.sfx.denied(); e.card.classList.add("denied"); }
     this.refresh();
@@ -10477,14 +10524,26 @@ class Shop {
   }
   itemAction(e) {
     const g = this.game, s = g.save, on = this.isOn(e); g.sfx.unlock();
+    if (!this.ownsItem(e) && !this.confirmBuy(e.btn, e.it.price)) return;
     if (this.ownsItem(e)) { if (e.kind === "hats") s.equipHat(e.it.slot, on ? null : e.it.id); else s.equipItem(e.kind, on ? null : e.it.id); g.sfx.click(); if (e.kind === "pets") g.pets.tag = 3; }
     else if (e.kind === "hats" ? s.buyHat(e.it) : s.buyItem(e.kind, e.it)) { g.sfx.buy(); this.confirmAnim(e.card); this.flashWallet(); g.ach.event("purchase", { kind: e.kind, price: e.it.price }); }
     else { g.sfx.denied(); e.card.classList.add("denied"); }
     this.refresh();
   }
+  // Móvil: la primera vez que tocas «Comprar» pide confirmación («¿Seguro? Toca otra vez») para no comprar sin querer
+  confirmBuy(btn, price) {
+    if (!this.game.touchMode || this.game.save.data.coins < price) return true;
+    const now = performance.now();
+    if (btn.dataset.armed && now - btn.dataset.armed < 3000) { delete btn.dataset.armed; btn.classList.remove("confirm"); return true; }
+    btn.dataset.armed = now; btn.classList.add("confirm"); btn.textContent = I18N.t("¿Seguro? Toca otra vez");
+    this.game.sfx.click();
+    setTimeout(() => { if (btn.dataset.armed && performance.now() - btn.dataset.armed >= 2900) { delete btn.dataset.armed; btn.classList.remove("confirm"); this.refresh(); } }, 3000);
+    return false;
+  }
   action(e) {
     const g = this.game, s = g.save, skin = SkinCatalog.get(e.id);
     g.sfx.unlock();
+    if (!s.owns(e.id) && e.kind === "shop" && !this.confirmBuy(e.btn || e.card.querySelector("button"), skin.price)) return;
     if (s.owns(e.id)) { s.equip(e.id); g.onSkinChanged(); g.sfx.click(); }
     else if (e.kind === "shop" && s.buy(skin)) {
       g.sfx.buy(); this.confirmAnim(e.card); this.flashWallet();
@@ -14249,7 +14308,11 @@ const CONTROL_RESERVED = ["Escape", "m", "Tab"];   // Esc (pausa / volver), M (s
 const KEY_NAMES = { ArrowUp: "↑", ArrowDown: "↓", ArrowLeft: "←", ArrowRight: "→", Space: "Espacio", Enter: "Intro", Escape: "Esc", Backspace: "Retroceso",
   ShiftLeft: "Mayús izq.", ShiftRight: "Mayús der.", ControlLeft: "Ctrl izq.", ControlRight: "Ctrl der.", AltLeft: "Alt", AltRight: "Alt Gr", CapsLock: "Bloq Mayús",
   Insert: "Insert", Delete: "Supr", Home: "Inicio", End: "Fin", PageUp: "Re Pág", PageDown: "Av Pág" };
-const keyName = k => !k ? "—" : KEY_NAMES[k] || (k.length === 1 ? k.toUpperCase() : k.replace(/^Key|^Digit|^Numpad/, "").replace(/^(.)/, m => m.toUpperCase()));
+// Nombre visible de cada tecla. Las letras se guardan por posición (QWERTY); si el navegador lo permite, se muestra la letra
+// de TU teclado (en AZERTY la tecla de saltar se ve como «Z»)
+const KEY_LAYOUT = new Map();
+try { if (navigator.keyboard && navigator.keyboard.getLayoutMap) navigator.keyboard.getLayoutMap().then(m => { m.forEach((v, k) => KEY_LAYOUT.set(k, v)); if (window.__game) window.__game.controls.applyLabels(); }).catch(() => {}); } catch (e) {}
+const keyName = k => !k ? "—" : KEY_NAMES[k] || (/^[a-z]$/.test(k) ? (KEY_LAYOUT.get("Key" + k.toUpperCase()) || k).toUpperCase() : k.length === 1 ? k.toUpperCase() : k.replace(/^Key|^Digit|^Numpad/, "").replace(/^(.)/, m => m.toUpperCase()));
 const clone = o => JSON.parse(JSON.stringify(o));
 
 class Controls {
@@ -15236,16 +15299,19 @@ class Game {
 // =====================================================================
 platform.loadingStart();
 const game = new Game(document.getElementById("game"));
-platform.onAdAudio = on => game.sfx.adMute(on);
+platform.onAdAudio = on => game.sfx.adMute(on);   // el audio se para solo mientras un anuncio está en pantalla
 // Idioma: el elegido en Opciones o, si no, el del jugador (español si su idioma es español; si no, inglés)
 I18N.onChange = () => { game.ui.updateMute(); game.controls.applyLabels(); };
-I18N.setLang(game.save.data.lang || I18N.pick(platform.getLocale()));   // el audio se para solo mientras un anuncio está en pantalla
+I18N.setLang(game.save.data.lang || I18N.pick(platform.getLocale()));
 window.__game = game; window.__Obstacle = Obstacle; window.__applyLane = applyLane; window.__dbg = { HATS, drawRaptor, SE, SKINS_DATA }; // útil para depurar desde la consola
 game.showMenu();
 
 // Letra pulsada en minúscula (acepta mayúsculas, Bloq Mayús y Mayús)
 const KEY_CODES = { KeyW: "w", KeyA: "a", KeyS: "s", KeyD: "d", KeyE: "e", KeyP: "p", KeyM: "m", KeyT: "t", KeyB: "b" };
-const keyOf = e => (e.code === "Space" ? "Space" : e.key && e.key.length === 1 && e.key !== " " ? e.key.toLowerCase() : KEY_CODES[e.code] || e.code);
+// Las letras se leen por su POSICIÓN en el teclado (e.code): en un teclado AZERTY la tecla Z (donde la W) salta,
+// Q (donde la A) va al carril de arriba, etc. El nombre que se muestra es el de tu teclado (ver keyName en Controles).
+const keyOf = e => (e.code === "Space" ? "Space" : /^Key[A-Z]$/.test(e.code) ? e.code.slice(3).toLowerCase()
+  : e.key && e.key.length === 1 && e.key !== " " ? e.key.toLowerCase() : KEY_CODES[e.code] || e.code);
 const C = game.controls;   // teclas configurables (Opciones → Controles)
 addEventListener("keydown", e => {
   const k = keyOf(e), st = game.state;
@@ -15347,38 +15413,55 @@ addEventListener("keyup", e => {
   else { const a = C.action(k); if (a === "slide") pl.downHeld = false; if (a === "jump") pl.upHeld = false; }
 });
 
-// Gestos: tocar = saltar, deslizar ↓ = deslizarse / caída rápida
-let touch = null;
-const inUI = e => e.target.closest && e.target.closest(".overlay, button");
+// Móvil (opción A): tocar en cualquier sitio = saltar AL INSTANTE (al apoyar el dedo) · mantener = planear ·
+// deslizar ↓ = deslizarse (si acabas de saltar con ese mismo toque, el salto se anula) · botones ▲ ▼ 📢 abajo y ❚❚ arriba.
+// Cada dedo cuenta por separado: un segundo dedo es un segundo salto (doble salto), nunca bloquea ni duplica.
+const touches = new Map();   // identificador del dedo → { y0, t0, done }
+const inUI = e => e.target.closest && e.target.closest(".overlay, button, #specBar");
 function enableTouchMode() { if (!game.touchMode) { game.touchMode = true; document.body.classList.add("touch"); } }
+if (platform.isMobile()) enableTouchMode();
 document.addEventListener("touchstart", e => {
   enableTouchMode();
   if (inUI(e)) return;
   if (game.state !== "playing" && game.state !== "paused") return;
   e.preventDefault(); game.sfx.unlock();
-  touch = { y: e.touches[0].clientY, done: false }; game.player.upHeld = true;
+  for (const t of e.changedTouches) { touches.set(t.identifier, { y0: t.clientY, t0: performance.now(), done: false }); game.primary(); }
+  game.player.upHeld = true;
 }, { passive: false });
 document.addEventListener("touchmove", e => {
-  if (!touch || touch.done || inUI(e)) return;
+  if (!touches.size || inUI(e)) return;
   e.preventDefault();
-  const dy = e.touches[0].clientY - touch.y;
-  if (dy > 30) { if (game.state === "playing") { game.player.downHeld = true; game.player.slide(); } touch.done = true; }
-  else if (dy < -30) { game.primary(); touch.done = true; }
+  for (const t of e.changedTouches) {
+    const s = touches.get(t.identifier); if (!s || s.done) continue;
+    if (t.clientY - s.y0 > 30) {   // deslizar hacia abajo
+      s.done = true; if (game.state !== "playing") continue;
+      const pl = game.player; if (performance.now() - s.t0 < 250) pl.cancelJump();
+      pl.downHeld = true; pl.slide();
+    }
+  }
 }, { passive: false });
 // iOS: si el audio quedó en pausa (al volver de segundo plano), se reanuda dentro del siguiente gesto del jugador
 for (const ev of ["touchend", "click", "keydown"]) document.addEventListener(ev, () => {
   const c = game.sfx.ctx; if (c && c.state !== "running" && !game.sfx.adMuted) { const p = c.resume(); if (p && p.catch) p.catch(() => {}); }
 }, { passive: true });
-document.addEventListener("touchend", e => {
-  if (!touch) return;
-  if (e.touches.length === 0) {
-    if (!touch.done) game.primary();   // toque simple = saltar
-    touch = null; game.player.downHeld = false; game.player.upHeld = false;
-  }
-});
+const touchEnd = e => {
+  for (const t of e.changedTouches) touches.delete(t.identifier);
+  if (!e.touches.length) { touches.clear(); game.player.downHeld = false; game.player.upHeld = false; }
+};
+document.addEventListener("touchend", touchEnd);
+document.addEventListener("touchcancel", touchEnd);
+// El botón de pausa va arriba a la derecha, sobre el juego (en su sitio no se dibuja el anillo del rugido en el móvil)
+document.getElementById("stage").appendChild(document.querySelector("#touch .t-pause"));
+// El botón del rugido muestra la recarga y brilla cuando está listo
+const roarBtn = document.querySelector("#touch .roar");
+function updateTouchButtons() {
+  if (!game.touchMode) return;
+  const max = game.roarCdMax || game.mode.roarCooldown || 1, cd = game.state === "playing" ? Math.max(0, game.roarCd) : 0;
+  roarBtn.style.setProperty("--cd", (cd / max).toFixed(3)); roarBtn.classList.toggle("ready", cd <= 0 || game.fury.full);
+}
 document.getElementById("stage").addEventListener("mousedown", () => { if (!game.touchMode) game.primary(); });
 
-document.querySelectorAll("#touch button").forEach(b => b.addEventListener("pointerdown", e => {
+document.querySelectorAll("#touch button, #stage > .t-pause").forEach(b => b.addEventListener("pointerdown", e => {
   e.preventDefault(); e.stopPropagation(); game.sfx.unlock();
   const playing = game.state === "playing";
   switch (b.dataset.act) {
@@ -15435,7 +15518,7 @@ function loop(now) {
   const frameS = Math.max(0, (now - last) / 1000);   // nunca negativo (el primer fotograma puede llegar «antes»)
   if (!document.hidden && now > last) game.frameStat(now - last);
   last = Math.max(last, now);
-  try { advance(frameS); game.draw(); syncGameplay(); }
+  try { advance(frameS); game.draw(); syncGameplay(); updateTouchButtons(); }
   catch (e) { if (loopErrors++ < 5) console.error("Error en el bucle del juego:", e); }
 }
 // Avisa a la plataforma de cuándo se está jugando de verdad (no en menús, pausa, cuenta atrás ni anuncios)

@@ -2067,5 +2067,9 @@ window.I18N_EN = {
 "{0} sinergias": "{0} synergies",
 "🏆 {0}": "🏆 {0}",
 "🌍 Enviado al ranking mundial como {0}": "🌍 Sent to the world ranking as {0}",
-"🌍 Enviado al ranking mundial como": "🌍 Sent to the world ranking as"
+"🌍 Enviado al ranking mundial como": "🌍 Sent to the world ranking as",
+"{0} · NIVEL {1} · {2} · {3} PUNTOS": "{0} · LEVEL {1} · {2} · {3} POINTS",
+"{0} · Nivel {1} · {2} · {3} puntos": "{0} · Level {1} · {2} · {3} points",
+"Tu build": "Your build",
+"¿Seguro? Toca otra vez": "Sure? Tap again"
 };

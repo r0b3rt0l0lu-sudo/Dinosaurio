@@ -3,16 +3,19 @@
 // =====================================================================
 platform.loadingStart();
 const game = new Game(document.getElementById("game"));
-platform.onAdAudio = on => game.sfx.adMute(on);
+platform.onAdAudio = on => game.sfx.adMute(on);   // el audio se para solo mientras un anuncio está en pantalla
 // Idioma: el elegido en Opciones o, si no, el del jugador (español si su idioma es español; si no, inglés)
 I18N.onChange = () => { game.ui.updateMute(); game.controls.applyLabels(); };
-I18N.setLang(game.save.data.lang || I18N.pick(platform.getLocale()));   // el audio se para solo mientras un anuncio está en pantalla
+I18N.setLang(game.save.data.lang || I18N.pick(platform.getLocale()));
 window.__game = game; window.__Obstacle = Obstacle; window.__applyLane = applyLane; window.__dbg = { HATS, drawRaptor, SE, SKINS_DATA }; // útil para depurar desde la consola
 game.showMenu();
 
 // Letra pulsada en minúscula (acepta mayúsculas, Bloq Mayús y Mayús)
 const KEY_CODES = { KeyW: "w", KeyA: "a", KeyS: "s", KeyD: "d", KeyE: "e", KeyP: "p", KeyM: "m", KeyT: "t", KeyB: "b" };
-const keyOf = e => (e.code === "Space" ? "Space" : e.key && e.key.length === 1 && e.key !== " " ? e.key.toLowerCase() : KEY_CODES[e.code] || e.code);
+// Las letras se leen por su POSICIÓN en el teclado (e.code): en un teclado AZERTY la tecla Z (donde la W) salta,
+// Q (donde la A) va al carril de arriba, etc. El nombre que se muestra es el de tu teclado (ver keyName en Controles).
+const keyOf = e => (e.code === "Space" ? "Space" : /^Key[A-Z]$/.test(e.code) ? e.code.slice(3).toLowerCase()
+  : e.key && e.key.length === 1 && e.key !== " " ? e.key.toLowerCase() : KEY_CODES[e.code] || e.code);
 const C = game.controls;   // teclas configurables (Opciones → Controles)
 addEventListener("keydown", e => {
   const k = keyOf(e), st = game.state;
@@ -114,38 +117,55 @@ addEventListener("keyup", e => {
   else { const a = C.action(k); if (a === "slide") pl.downHeld = false; if (a === "jump") pl.upHeld = false; }
 });
 
-// Gestos: tocar = saltar, deslizar ↓ = deslizarse / caída rápida
-let touch = null;
-const inUI = e => e.target.closest && e.target.closest(".overlay, button");
+// Móvil (opción A): tocar en cualquier sitio = saltar AL INSTANTE (al apoyar el dedo) · mantener = planear ·
+// deslizar ↓ = deslizarse (si acabas de saltar con ese mismo toque, el salto se anula) · botones ▲ ▼ 📢 abajo y ❚❚ arriba.
+// Cada dedo cuenta por separado: un segundo dedo es un segundo salto (doble salto), nunca bloquea ni duplica.
+const touches = new Map();   // identificador del dedo → { y0, t0, done }
+const inUI = e => e.target.closest && e.target.closest(".overlay, button, #specBar");
 function enableTouchMode() { if (!game.touchMode) { game.touchMode = true; document.body.classList.add("touch"); } }
+if (platform.isMobile()) enableTouchMode();
 document.addEventListener("touchstart", e => {
   enableTouchMode();
   if (inUI(e)) return;
   if (game.state !== "playing" && game.state !== "paused") return;
   e.preventDefault(); game.sfx.unlock();
-  touch = { y: e.touches[0].clientY, done: false }; game.player.upHeld = true;
+  for (const t of e.changedTouches) { touches.set(t.identifier, { y0: t.clientY, t0: performance.now(), done: false }); game.primary(); }
+  game.player.upHeld = true;
 }, { passive: false });
 document.addEventListener("touchmove", e => {
-  if (!touch || touch.done || inUI(e)) return;
+  if (!touches.size || inUI(e)) return;
   e.preventDefault();
-  const dy = e.touches[0].clientY - touch.y;
-  if (dy > 30) { if (game.state === "playing") { game.player.downHeld = true; game.player.slide(); } touch.done = true; }
-  else if (dy < -30) { game.primary(); touch.done = true; }
+  for (const t of e.changedTouches) {
+    const s = touches.get(t.identifier); if (!s || s.done) continue;
+    if (t.clientY - s.y0 > 30) {   // deslizar hacia abajo
+      s.done = true; if (game.state !== "playing") continue;
+      const pl = game.player; if (performance.now() - s.t0 < 250) pl.cancelJump();
+      pl.downHeld = true; pl.slide();
+    }
+  }
 }, { passive: false });
 // iOS: si el audio quedó en pausa (al volver de segundo plano), se reanuda dentro del siguiente gesto del jugador
 for (const ev of ["touchend", "click", "keydown"]) document.addEventListener(ev, () => {
   const c = game.sfx.ctx; if (c && c.state !== "running" && !game.sfx.adMuted) { const p = c.resume(); if (p && p.catch) p.catch(() => {}); }
 }, { passive: true });
-document.addEventListener("touchend", e => {
-  if (!touch) return;
-  if (e.touches.length === 0) {
-    if (!touch.done) game.primary();   // toque simple = saltar
-    touch = null; game.player.downHeld = false; game.player.upHeld = false;
-  }
-});
+const touchEnd = e => {
+  for (const t of e.changedTouches) touches.delete(t.identifier);
+  if (!e.touches.length) { touches.clear(); game.player.downHeld = false; game.player.upHeld = false; }
+};
+document.addEventListener("touchend", touchEnd);
+document.addEventListener("touchcancel", touchEnd);
+// El botón de pausa va arriba a la derecha, sobre el juego (en su sitio no se dibuja el anillo del rugido en el móvil)
+document.getElementById("stage").appendChild(document.querySelector("#touch .t-pause"));
+// El botón del rugido muestra la recarga y brilla cuando está listo
+const roarBtn = document.querySelector("#touch .roar");
+function updateTouchButtons() {
+  if (!game.touchMode) return;
+  const max = game.roarCdMax || game.mode.roarCooldown || 1, cd = game.state === "playing" ? Math.max(0, game.roarCd) : 0;
+  roarBtn.style.setProperty("--cd", (cd / max).toFixed(3)); roarBtn.classList.toggle("ready", cd <= 0 || game.fury.full);
+}
 document.getElementById("stage").addEventListener("mousedown", () => { if (!game.touchMode) game.primary(); });
 
-document.querySelectorAll("#touch button").forEach(b => b.addEventListener("pointerdown", e => {
+document.querySelectorAll("#touch button, #stage > .t-pause").forEach(b => b.addEventListener("pointerdown", e => {
   e.preventDefault(); e.stopPropagation(); game.sfx.unlock();
   const playing = game.state === "playing";
   switch (b.dataset.act) {
