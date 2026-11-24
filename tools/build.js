@@ -25,6 +25,8 @@ function build(name) {
   const html = read("head.html").replace("<!-- @build -->", `<script>window.DR_BUILD = ${JSON.stringify(T.flags)};</script>`) +
     "<style>\n" + read("css/style.css") + "</style>\n</head>\n<body>\n" +
     read("body.html") +
+    "<script>\n" + read("i18n/en.js") + "</script>\n" +
+    "<script>\n" + read("i18n/i18n.js") + "</script>\n" +
     "<script>\n" + read("platform.js") + "</script>\n" +
     "<script>\n" + read("engine/skins-engine.js") + "</script>\n" +
     "<!-- Kit Dino Runner: datos de skins -->\n<script>\n" + read("engine/skins-data.js") + "</script>\n" +

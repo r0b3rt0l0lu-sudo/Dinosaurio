@@ -16,6 +16,7 @@ class SaveManager {
       season: { id: 1, xp: 0, tier: 0, seen: 0 }, codeUsed: false, allUpgrades: false,
       hats: [], acc: { head: null, back: null, feet: null },   // accesorios comprados y equipados (3 huecos)
       trails: [], trail: null, roars: [], roar: null, pets: [], pet: null,   // estelas, rugidos y mascota
+      lang: null, vibrate: true,   // idioma elegido (null = el del jugador) y vibración en el móvil
     };
     this.load();
     if (DEBUG) {
@@ -36,6 +37,8 @@ class SaveManager {
         if (Array.isArray(d.checkpoints)) this.data.checkpoints = [...new Set(d.checkpoints.filter(l => Number.isInteger(l) && l >= 2))];
         if (typeof d.lastFreeSpin === "string") this.data.lastFreeSpin = d.lastFreeSpin;
         this.data.muted = !!d.muted;
+        if (d.lang === "es" || d.lang === "en") this.data.lang = d.lang;
+        if (d.vibrate === false) this.data.vibrate = false;
         if (MODES[d.lastMode]) this.data.lastMode = d.lastMode;
         if (Array.isArray(d.bossesDefeated)) this.data.bossesDefeated = d.bossesDefeated.filter(id => typeof id === "string");
         this.data.editor = !!d.editor;

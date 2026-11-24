@@ -97,7 +97,7 @@ class SaveBackup {
     try {
       const obj = await SaveBackup.decode(text);
       this.pending = obj;
-      document.getElementById("bkSumText").textContent = `Guardado del ${new Date(obj.date).toLocaleString("es-ES")}: ${SaveBackup.summary(obj.data)}.`;
+      document.getElementById("bkSumText").textContent = `Guardado del ${new Date(obj.date).toLocaleString(I18N.locale)}: ${SaveBackup.summary(obj.data)}.`;
       this.sum.classList.remove("hidden"); this.say("Código correcto. Revisa el resumen y confirma.", "ok");
     } catch (e) { this.say(e.message, "err"); this.g.sfx.denied(); }
   }
@@ -132,7 +132,7 @@ class SaveBackup {
 //  (AchievementManager.event le pasa cada evento antes de filtrar) y tiene su pantalla con pestañas y gráficos.
 // =====================================================================
 const RARITY_RANK = { comun: 1, rara: 2, epica: 3, legendaria: 4 };
-const fmtInt = v => String(Math.round(Number(v) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+const fmtInt = v => String(Math.round(Number(v) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, I18N.lang === "es" ? "." : ",");   // miles: 1.234 · 1,234
 const fmtTime = s => { s = Math.round(s || 0); const h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60; return h ? `${h} h ${m} min` : m ? `${m} min ${s % 60} s` : `${s} s`; };
 class StatsManager {
   constructor(game) {

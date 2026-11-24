@@ -3,7 +3,10 @@
 // =====================================================================
 platform.loadingStart();
 const game = new Game(document.getElementById("game"));
-platform.onAdAudio = on => game.sfx.adMute(on);   // el audio se para solo mientras un anuncio está en pantalla
+platform.onAdAudio = on => game.sfx.adMute(on);
+// Idioma: el elegido en Opciones o, si no, el del jugador (español si su idioma es español; si no, inglés)
+I18N.onChange = () => { game.ui.updateMute(); game.controls.applyLabels(); };
+I18N.setLang(game.save.data.lang || I18N.pick(platform.getLocale()));   // el audio se para solo mientras un anuncio está en pantalla
 window.__game = game; window.__Obstacle = Obstacle; window.__applyLane = applyLane; window.__dbg = { HATS, drawRaptor, SE, SKINS_DATA }; // útil para depurar desde la consola
 game.showMenu();
 

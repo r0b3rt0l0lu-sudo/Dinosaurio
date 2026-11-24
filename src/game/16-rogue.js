@@ -310,7 +310,7 @@ class BuildHistory {
   open(from) {
     this.from = from; const h = this.g.save.data.buildHistory, MN = { normal: "Normal", easy: "Fácil", hard: "Difícil" };
     this.list.innerHTML = h.length ? h.map((r, i) => `<div class="hist">
-      <div class="hist-head"><b>#${i + 1} · ${fmtNum(r.score)} pts</b><small>${new Date(r.date).toLocaleDateString("es-ES")} · ${MN[r.mode] || r.mode} · nivel ${r.level} · ${r.bosses} jefe${r.bosses === 1 ? "" : "s"}</small></div>
+      <div class="hist-head"><b>#${i + 1} · ${fmtNum(r.score)} pts</b><small>${new Date(r.date).toLocaleDateString(I18N.locale)} · ${MN[r.mode] || r.mode} · nivel ${r.level} · ${r.bosses} jefe${r.bosses === 1 ? "" : "s"}</small></div>
       <div class="build-row">${buildIconsHtml({ ups: r.ups, syn: r.syn, pacts: r.pacts }, true)}</div></div>`).join("")
       : `<p class="touch-hint">Todavía no hay partidas. ¡Juega una!</p>`;
     paintBuildIcons(this.list);

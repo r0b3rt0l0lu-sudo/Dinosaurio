@@ -244,6 +244,10 @@ class Game {
     }
   }
   togglePause() { this.setPaused(this.state === "playing"); }
+  // Idioma del juego (se recuerda; null = el del jugador)
+  setLang(l) { this.save.data.lang = l; this.save.save(); I18N.setLang(l); this.sfx.click(); }
+  // Vibración corta en el móvil (se puede desactivar en Opciones)
+  vibrate(ms) { if (this.save.data.vibrate && navigator.vibrate) try { navigator.vibrate(ms); } catch (e) {} }
   toggleMute() { this.sfx.muted = !this.sfx.muted; this.save.data.muted = this.sfx.muted; this.save.save(); this.ui.updateMute(); }
   jump() {   // W, toque o clic
     this.sfx.unlock();
@@ -422,7 +426,7 @@ class Game {
     const s = this.save.data;
     if (!s.bossesDefeated.includes(id)) s.bossesDefeated.push(id);
     B.defeatedRun.add(id); this.save.save();
-    this.sfx.bossDefeat(); this.addShake(0.6, 10);
+    this.sfx.bossDefeat(); this.addShake(0.6, 10); this.vibrate(60);
     if (this.netCoop) this.net.onLocalBossDefeated();   // avisa al equipo (y levanta a los caídos)
     this.bossBanner = B.pending.secret ? { t: 4, text: "¡JEFE SECRETO DERROTADO!", sub: `+${fmtNum(coins)} monedas · +${SECRET_CONFIG.SEASON_XP} XP del pase · ¡Eres una leyenda!`, color: "#ff5ce1" }
       : { t: 2.5, text: this.netCoop ? "¡JEFE DERROTADO EN EQUIPO!" : "¡BOSS DERROTADO!", sub: `+${fmtNum(coins)} monedas · +${CONFIG.BOSS_POINTS} puntos`, color: "#ffd23f" };
@@ -505,7 +509,7 @@ class Game {
     if (this.versus) { this.sfx.victory(); this.bankRun(); return; }
     const c = this.player.center, sk = SkinCatalog.get(this.skinId), cols = sk ? [sk.pal.b, sk.pal.o, "#ffffff"] : ["#ffffff"];
     for (let i = 0; i < 20; i++) this.particles.push(new Particle(this.player.logicalLane, c.x, c.y, rand(-250, 250), rand(100, 500), rand(0.5, 1), choice(cols), rand(3, 6)));
-    if (navigator.vibrate) try { navigator.vibrate(150); } catch (e) {}
+    this.vibrate(150);
     if (this.netRace) { this.net.onLocalDeath(); return; }   // online: se guarda al cerrar la carrera (en cooperativo puedes volver)
     this.bankRun();
   }

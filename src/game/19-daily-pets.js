@@ -10,7 +10,7 @@ function mulberry32(a) {
 function hashStr(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
 const dayKey = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 const yesterdayKey = () => { const d = new Date(); d.setDate(d.getDate() - 1); return dayKey(d); };
-const fmtDay = k => { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d).toLocaleDateString("es-ES", { weekday: "short", day: "numeric", month: "short" }); };
+const fmtDay = k => { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d).toLocaleDateString(I18N.locale, { weekday: "short", day: "numeric", month: "short" }); };
 // Ejecuta fn con Math.random sustituido por un generador con semilla
 function withRng(rng, fn) { const r = Math.random; Math.random = rng; try { return fn(); } finally { Math.random = r; } }
 

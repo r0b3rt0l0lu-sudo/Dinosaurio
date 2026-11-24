@@ -88,7 +88,7 @@ class Tutorial {
       ui.text(c, kl, kx + kw / 2, y + 38, kl.length > 2 ? 10 : 14, on ? "#16111f" : UI_T.text, "center"); kx += kw + 6;
     }
     c.font = '10px "Raptor Pixel Display", monospace';   // texto en una o dos líneas
-    const words = S.text.replace(/\{(\w+)\}/g, (m, a) => g.controls.label(a)).toUpperCase().split(" "), lines = [""], maxW = x + w - kx - 16;
+    const words = I18N.t(S.text).replace(/\{(\w+)\}/g, (m, a) => g.controls.label(a)).toUpperCase().split(" "), lines = [""], maxW = x + w - kx - 16;
     for (const wd of words) { const t = lines[lines.length - 1] ? lines[lines.length - 1] + " " + wd : wd; if (c.measureText(t).width > maxW && lines[lines.length - 1]) lines.push(wd); else lines[lines.length - 1] = t; }
     lines.slice(0, 3).forEach((l, i, a) => ui.text(c, l, kx + 6, y + 40 + (i - (a.length - 1) / 2) * 14, 10, UI_T.text));
     if (S.free) {   // lista de lo que falta coger

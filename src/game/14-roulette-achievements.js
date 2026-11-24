@@ -390,7 +390,7 @@ class AchievementManager {
       if (this.filter !== "todos" && a.cat !== this.filter) continue;
       const got = this.has(a.id), hidden = a.secret && !got, [v, goal] = this.progress(a);
       const card = document.createElement("div"); card.className = "ach" + (got ? " got" : " locked");
-      const date = got ? new Date(this.data.unlocked[a.id]).toLocaleDateString("es-ES") : "";
+      const date = got ? new Date(this.data.unlocked[a.id]).toLocaleDateString(I18N.locale) : "";
       const skin = a.skin && SkinCatalog.get(a.skin);
       card.innerHTML = `<canvas width="32" height="32"></canvas><div class="ach-body">
         <b>${hidden ? "???" : a.name}</b><small>${hidden ? "Logro secreto" : a.desc}${a.normalOnly ? " · <i>solo Normal o Difícil</i>" : ""}</small>

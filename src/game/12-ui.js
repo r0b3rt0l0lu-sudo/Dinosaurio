@@ -4,7 +4,7 @@
 // Colores de la interfaz (tokens de la propuesta de Claude Design)
 const UI_T = { line: "#0e0b16", panel: "rgba(35,27,56,0.88)", pill: "rgba(16,12,26,0.78)", bevel: "#574a82", text: "#fbf3e4", dim: "#b3a7cc",
   go: "#5fd15a", gold: "#ffb938", info: "#5fb4ff", roar: "#ff9a3c", danger: "#ff3b3b", weak: "#ffd23f" };
-const fmtNum = n => String(n).replace(".", ",");
+const fmtNum = n => I18N.lang === "es" ? String(n).replace(".", ",") : String(n);   // decimales: 1,5 en español · 1.5 en inglés
 const HEART = [".XX.XX.", "XXXXXXX", "XXXXXXX", ".XXXXX.", "..XXX..", "...X..."];
 function drawHeart(c, x, y, full) {
   HEART.forEach((row, r) => { for (let i = 0; i < row.length; i++) if (row[i] === "X") {
@@ -50,6 +50,8 @@ class UI {
     bind("btnControls", () => game.openControls());
     $("helpCtrl").addEventListener("click", e => { e.preventDefault(); e.currentTarget.blur(); if (game.state === "over" && game.netRace) return; game.sfx.click(); game.openControls(); });
     bind("btnMute", () => game.toggleMute());
+    bind("btnLang", () => game.setLang(I18N.lang === "es" ? "en" : "es"));
+    bind("btnVibrate", () => { const d = game.save.data; d.vibrate = !d.vibrate; game.save.save(); this.updateMute(); if (d.vibrate) game.vibrate(40); });
     bind("btnRetry", () => game.retry());
     bind("btnVersus", () => game.openPlay(true));
     bind("btnOnline", () => game.openNet());
@@ -87,7 +89,12 @@ class UI {
     b.classList.toggle("hidden", !s.codeUsed); b.querySelector("b").textContent = s.allUpgrades ? "Todas las mejoras: SÍ" : "Todas las mejoras: NO";
   }
   updateTips() { const off = this.game.save.data.tips.off; this.$("btnTips").querySelector("b").textContent = off ? "Consejos: NO" : "Consejos: SÍ"; this.$("btnTipsReset").querySelector("b").textContent = "Volver a ver los consejos"; }
-  updateMute() { const m = this.game.sfx.muted; this.$("btnMute").querySelector("b").textContent = m ? "Sonido: NO" : "Sonido: SÍ"; this.$("btnMute").querySelector("i").textContent = m ? "🔇" : "🔊"; }
+  updateMute() {
+    const m = this.game.sfx.muted, v = this.game.save.data.vibrate;
+    this.$("btnMute").querySelector("b").textContent = m ? "Sonido: NO" : "Sonido: SÍ"; this.$("btnMute").querySelector("i").textContent = m ? "🔇" : "🔊";
+    this.$("btnVibrate").querySelector("b").textContent = v ? "Vibración: SÍ" : "Vibración: NO";
+    this.$("btnLang").querySelector("b").textContent = "Idioma: " + I18N.LANGS[I18N.lang].name;
+  }
   // Submenús de la portada
   menuPanel(id = "mmMain") {
     if (id === "mmDaily") this.$("dailyBox").innerHTML = this.game.dailyRace.panelHtml();   // carrera diaria: regla, marcas e historial
@@ -177,13 +184,13 @@ class UI {
     this.countUp(this.$("overScore"), g.score, g.newRecord || (D && D.best && !D.first));
     this.$("overCause").textContent = g.deathCause ? `💀 Te eliminó: ${g.deathCause}` : "";
     const F = g.runFossils, of = this.$("overFossils");
-    of.innerHTML = F && F.total ? `${fossilHtml()} +${F.total} fósiles <small>(${F.lines.map(([t, n]) => `${t} ${n >= 0 ? "+" : ""}${n}`).join(" · ")})</small>` : `${fossilHtml()} Sin fósiles esta vez <small>(completa niveles y derrota jefes)</small>`;
+    of.innerHTML = F && F.total ? `${fossilHtml()} +${F.total} fósiles <small>(${F.lines.map(([t, n]) => `${I18N.t(t)} ${n >= 0 ? "+" : ""}${n}`).join(" · ")})</small>` : `${fossilHtml()} Sin fósiles esta vez <small>(completa niveles y derrota jefes)</small>`;
     paintFossils(of);
     // Pase de temporada: la barra se llena desde donde estaba antes de la partida
     const sp = this.$("overSeason"), sd = g.season.d, max = sd.tier >= SEASON_CONFIG.TIERS, ups = (g.runSeason || []).length;
     const to = max ? 100 : Math.round(sd.xp / g.season.need() * 100), from = ups || !g.seasonBefore ? 0 : Math.round(g.seasonBefore.frac * 100);
-    const O = g.online, rk = O.nick ? (g.save.data.allUpgrades ? "🌍 Con «Todas las mejoras» no cuenta para el ranking" : `🌍 Enviado al ranking mundial como <b>${escapeHtml(O.nick)}</b>`) : "🌍 Elige un apodo en el ranking para competir con todo el mundo";
-    sp.innerHTML = `<div class="os-head"><span>🎟️ Pase · nivel <b>${sd.tier}</b>/${SEASON_CONFIG.TIERS}</span><span class="os-xp">+${g.runXP || 0} XP</span></div><div class="bar ss-bar"><i style="width:${from}%"></i></div>${ups ? `<p class="os-up">¡SUBES DE NIVEL! ${g.runSeason.map(x => x.txt).join(" · ")}</p>` : ""}<p class="os-rank">${rk}</p>`;
+    const O = g.online, rk = !BUILD.online ? "" : O.nick ? (g.save.data.allUpgrades ? "🌍 Con «Todas las mejoras» no cuenta para el ranking" : `🌍 Enviado al ranking mundial como <b>${escapeHtml(O.nick)}</b>`) : "🌍 Elige un apodo en el ranking para competir con todo el mundo";
+    sp.innerHTML = `<div class="os-head"><span>🎟️ Pase · nivel <b>${sd.tier}</b>/${SEASON_CONFIG.TIERS}</span><span class="os-xp">+${g.runXP || 0} XP</span></div><div class="bar ss-bar"><i style="width:${from}%"></i></div>${ups ? `<p class="os-up">¡SUBES DE NIVEL! ${g.runSeason.map(x => x.txt).join(" · ")}</p>` : ""}${rk ? `<p class="os-rank">${rk}</p>` : ""}`;
     const bar = sp.querySelector("i"); requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.width = to + "%"; }));
     // Carrera diaria
     const od = this.$("overDaily"); od.classList.toggle("hidden", !D);

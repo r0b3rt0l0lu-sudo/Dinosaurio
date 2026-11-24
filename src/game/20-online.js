@@ -147,7 +147,7 @@ const g_rankMode = g => g.daily ? "daily" : RANK_MODES.some(([m]) => m === g.mod
 // Guardado en la nube dentro de la pantalla Guardar / Cargar (reutiliza el resumen y la confirmación de la copia de seguridad)
 SaveBackup.prototype.setupCloud = function () {
   const g = this.g, $ = id => document.getElementById(id), msg = $("cloudMsg"), say = (t, k = "") => { msg.textContent = t; msg.className = "bk-msg " + k; };
-  const show = () => { const c = g.save.data.cloudCode; $("cloudCode").innerHTML = c ? `Tu código: <b>${fmtCloudCode(c)}</b>${g.save.data.cloudAt ? ` <small>(subido el ${new Date(g.save.data.cloudAt).toLocaleString("es-ES")})</small>` : ""}` : ""; };
+  const show = () => { const c = g.save.data.cloudCode; $("cloudCode").innerHTML = c ? `Tu código: <b>${fmtCloudCode(c)}</b>${g.save.data.cloudAt ? ` <small>(subido el ${new Date(g.save.data.cloudAt).toLocaleString(I18N.locale)})</small>` : ""}` : ""; };
   const oldOpen = this.open.bind(this); this.open = () => { oldOpen(); show(); say(""); };
   $("cloudIn").addEventListener("keydown", e => e.stopPropagation());
   $("cloudUp").addEventListener("click", async e => {
@@ -161,7 +161,7 @@ SaveBackup.prototype.setupCloud = function () {
     say("Buscando…");
     try {
       const obj = await g.online.download(code); this.pending = obj;
-      $("bkSumText").textContent = `Guardado en la nube del ${new Date(obj.date).toLocaleString("es-ES")}: ${SaveBackup.summary(obj.data)}.`;
+      $("bkSumText").textContent = `Guardado en la nube del ${new Date(obj.date).toLocaleString(I18N.locale)}: ${SaveBackup.summary(obj.data)}.`;
       this.sum.classList.remove("hidden"); say("Encontrado. Revisa el resumen de arriba y confirma para cargarlo.", "ok");
       this.sum.scrollIntoView({ block: "center", behavior: "smooth" });
     } catch (err) { say(err.message, "err"); g.sfx.denied(); }
