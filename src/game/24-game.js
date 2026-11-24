@@ -513,6 +513,7 @@ class Game {
   // ----- Actualización (dt en segundos) -----
   update(dt) {
     this.time += dt; this.net.update(dt);
+    this.tick60 = Math.floor(this.time * 60) !== Math.floor((this.time - dt) * 60);   // un «tic» de 1/60 s (efectos que salen una vez por tic)
     updatePrismSkins(this.time); this.season.update(dt);
     this.level.tick(dt);
     this.ach.update(dt);
@@ -586,7 +587,7 @@ class Game {
     for (const e of this.eggs) e.update(gdt, sp);
     this.updateParticles(gdt);
 
-    if (this.effects.turbo > 0) {
+    if (this.effects.turbo > 0 && this.tick60) {
       const p = this.player;
       this.particles.push(new Particle(p.logicalLane, p.x + 10, p.y + rand(8, p.sliding ? 22 : 50), rand(-400, -250), rand(-30, 30), 0.3, choice(["#ffb000", "#ff6a00", "#fff2a8"]), rand(3, 6), 0));
     }
