@@ -1,0 +1,497 @@
+<div id="stage"><canvas id="game"></canvas><button class="btn ghost hidden" id="tutSkip">Saltar tutorial ⏭</button>
+  <div id="tip" class="tip-box hidden"><canvas id="tipCanvas" width="160" height="90"></canvas><div><small>CONSEJO</small><p id="tipText"></p><button class="btn primary" id="tipOk">Entendido <kbd data-k="jump">W</kbd></button></div></div>
+  <div id="specBar" class="spec-bar hidden"><button class="btn" id="specPrev" title="Anterior">◀</button><div class="spec-who"><small>👁 ESPECTANDO</small><b id="specName"></b><em id="specInfo"></em></div><button class="btn" id="specNext" title="Siguiente">▶</button><button class="btn" id="specBoard" title="Clasificación">🏆</button></div>
+</div>
+<div id="touch">
+  <button data-act="laneUp" class="t-lane"><b>▲</b><small>Carril</small></button>
+  <button data-act="laneDown" class="t-lane"><b>▼</b><small>Carril</small></button>
+  <button data-act="roar" class="roar"><b>📢</b><small>Rugido</small></button>
+  <button data-act="trap" class="t-trap"><b>🎯</b><small>Trampa</small></button>
+  <button data-act="pause" class="t-pause"><b>❚❚</b></button>
+</div>
+<p class="help">
+  <kbd data-k="jump" data-all="1">W</kbd> saltar (doble salto en el aire) · <kbd data-k="slide" data-all="1">S</kbd> deslizarse / caída rápida ·
+  <kbd data-k="laneUp" data-all="1">A</kbd> / <kbd data-k="laneDown" data-all="1">D</kbd> carril de arriba / abajo · <kbd data-k="roar" data-all="1">E</kbd> rugido · <kbd data-k="pause">P</kbd> pausa · <a href="#" id="helpCtrl" style="color:inherit">cambiar teclas</a>
+</p>
+<div id="toasts"></div>
+
+<!-- Fondo animado a pantalla completa (menú y elección de modo) -->
+<canvas id="menuBg" class="hidden"></canvas>
+
+<!-- Menú principal: portada a pantalla completa con submenús -->
+<div id="menu" class="overlay mm hidden">
+  <div class="mm-top">
+    <div class="mm-chips">
+      <span class="mm-chip" title="Monedas"><span class="coin"></span><b id="menuCoins">0</b></span>
+      <span class="mm-chip" title="Huevos"><span class="egg-ico"></span><b id="menuEggs">0</b></span>
+      <span class="mm-chip" title="Fósiles"><canvas class="fossil-ico" width="16" height="16" data-fossil="1"></canvas><b id="menuFossils">0</b></span>
+    </div>
+    <span class="mm-chip mm-skin" title="Skin equipado">🦖 <b id="menuSkin">—</b></span>
+  </div>
+
+  <div class="mm-center">
+    <h1 class="mm-title"><span>DINO</span><span>RUNNER</span></h1>
+    <p class="mm-sub">Corre · salta · ruge</p>
+
+    <nav id="mmMain" class="mm-panel">
+      <button class="mm-btn mm-play" id="btnPlay">► JUGAR<small>Récord <b id="menuBest">0</b></small></button>
+      <button class="mm-btn mm-daily" data-sub="mmDaily"><i>📅</i>Carrera diaria<small id="menuDaily">Mejor hoy 0</small><em class="mm-dot hidden" id="dotDaily"></em></button>
+      <button class="mm-btn mm-season" id="btnSeason"><i>🎟️</i>Pase de temporada<small id="menuSeason">Nivel 0/30</small><em class="mm-dot hidden" id="dotSeason"></em></button>
+      <div class="mm-grid">
+        <button class="mm-btn mm-sq" data-sub="mmShop"><i>🛒</i>Tienda<em class="mm-dot hidden" id="dotShop"></em></button>
+        <button class="mm-btn mm-sq" data-sub="mmProg"><i>🏆</i>Progreso<em class="mm-dot hidden" id="dotProg"></em></button>
+        <button class="mm-btn mm-sq mm-online" data-sub="mmMulti"><i>🌐</i>Multijugador</button>
+        <button class="mm-btn mm-sq" data-sub="mmOpts"><i>⚙️</i>Opciones</button>
+      </div>
+      <p class="mm-hint">Pulsa <kbd>W</kbd> para jugar</p>
+    </nav>
+
+    <section id="mmDaily" class="mm-panel mm-sub-panel hidden">
+      <button class="mm-back" data-back>← Carrera diaria</button>
+      <div id="dailyBox" class="dl-box"></div>
+      <button class="mm-btn mm-play" id="btnDaily">► CORRER LA DIARIA<small>Intentos ilimitados · cuenta tu mejor marca</small></button>
+      <button class="mm-btn" id="btnDailyRank"><i>🌍</i>Ranking mundial de hoy</button>
+    </section>
+
+    <section id="mmMulti" class="mm-panel mm-sub-panel hidden">
+      <button class="mm-back" data-back>← Multijugador</button>
+      <div class="mm-tiles">
+        <button class="mm-tile mm-world" id="btnOnline"><i>🌐</i><b>Online</b><small>Carrera contra 1–3 jugadores de cualquier sitio</small></button>
+        <button class="mm-tile" id="btnVersus"><i>👥</i><b>En este dispositivo</b><small>2 jugadores con el mismo teclado</small></button>
+      </div>
+    </section>
+
+    <section id="mmShop" class="mm-panel mm-sub-panel hidden">
+      <button class="mm-back" data-back>← Tienda y ruleta</button>
+      <div class="mm-tiles">
+        <button class="mm-tile" id="btnShop"><i>🛒</i><b>Tienda</b><small>Skins, checkpoints, editor y huevos</small></button>
+        <button class="mm-tile" id="btnRoulette"><i>🎡</i><b>Ruleta</b><small id="menuSpin">Apuesta monedas del juego</small><em class="mm-dot hidden" id="dotSpin"></em></button>
+      </div>
+    </section>
+
+    <section id="mmProg" class="mm-panel mm-sub-panel hidden">
+      <button class="mm-back" data-back>← Progreso</button>
+      <div class="mm-records">
+        <span>Normal <b id="menuHiN">0</b></span><span>Fácil <b id="menuHiE">0</b></span><span>Difícil <b id="menuHiH">0</b></span><span>Aleatorio <b id="menuHiR">0</b></span>
+      </div>
+      <div class="mm-tiles">
+        <button class="mm-tile" id="btnAch"><i>🏆</i><b>Logros</b><small id="menuAch">0/0</small></button>
+        <button class="mm-tile" id="btnTree"><i>🌳</i><b>Árbol</b><small id="menuTree">Mejoras permanentes</small><em class="mm-dot hidden" id="dotTree"></em></button>
+        <button class="mm-tile" id="btnStats"><i>📊</i><b>Estadísticas</b><small>Tus números</small></button>
+        <button class="mm-tile" id="btnAlbum"><i>📖</i><b>Álbum</b><small id="menuAlbum">Mejoras descubiertas</small></button>
+        <button class="mm-tile mm-world" id="btnRanking"><i>🌍</i><b>Ranking mundial</b><small id="menuRank">Compite con todos</small></button>
+        <button class="mm-tile" id="btnMenuHistory"><i>📜</i><b>Historial</b><small>Tus últimas builds</small></button>
+      </div>
+    </section>
+
+    <section id="mmOpts" class="mm-panel mm-sub-panel hidden">
+      <button class="mm-back" data-back>← Opciones</button>
+      <div class="mm-tiles">
+        <button class="mm-tile" id="btnManual"><i>📘</i><b>Manual</b><small>Todo sobre el juego</small></button>
+        <button class="mm-tile" id="btnControls"><i>🎮</i><b>Controles</b><small>Elige tus teclas</small></button>
+        <button class="mm-tile" id="btnTutorial"><i>🎓</i><b>Tutorial</b><small>Nivel de práctica</small></button>
+        <button class="mm-tile" id="btnBackup"><i>💾</i><b>Guardar / Cargar</b><small>Copia de tu progreso</small><em class="mm-dot hidden" id="dotBackup"></em></button>
+        <button class="mm-tile" id="btnMute"><i>🔊</i><b>Sonido: SÍ</b></button>
+        <button class="mm-tile" id="btnTips"><i>💡</i><b>Consejos: SÍ</b></button>
+        <button class="mm-tile" id="btnTipsReset"><i>↺</i><b>Volver a ver los consejos</b></button>
+        <button class="mm-tile" id="btnInstall"><i>📲</i><b>Instalar app</b><small id="installSub">Juega a pantalla completa y sin conexión</small></button>
+        <button class="mm-tile" id="btnCode"><i>🔑</i><b>Código secreto</b></button>
+        <button class="mm-tile hidden" id="btnAllUps"><i>⚡</i><b>Todas las mejoras: SÍ</b><small>En cada partida (código)</small></button>
+      </div>
+      <div id="codeBox" class="code-box hidden">
+        <input id="codeInput" type="text" maxlength="24" placeholder="Escribe el código" autocomplete="off" spellcheck="false">
+        <button class="btn primary" id="codeOk">Canjear</button>
+        <p id="codeMsg" class="bk-msg"></p>
+      </div>
+    </section>
+  </div>
+
+  <div class="mm-bottom">
+    <button class="bk-remind hidden" id="bkRemind">💾 Haz una copia de tu progreso</button>
+    <span class="hidden" id="debugHint" style="color:#ff8a8a">MODO PRUEBA: 1–9 y 0 = nivel · B = boss · M montura · U mejora · K altar</span>
+    <span class="mm-ver">Versión 27 · <a href="privacy.html" style="color:inherit">Privacidad</a></span>
+  </div>
+</div>
+
+<!-- Elegir modo y nivel (estilo portada) -->
+<div id="play" class="overlay scr hidden">
+  <div class="card scr-card play-card">
+    <button class="mm-back" id="playBack">← Volver</button>
+    <h2 class="scr-title" id="playTitle">Elige modo</h2>
+    <p class="touch-hint hidden" id="vsHint" style="margin:-4px 0 12px">J1 (carril de arriba): <kbd data-k="vs1.jump">W</kbd> saltar · <kbd data-k="vs1.slide">S</kbd> deslizarse · <kbd data-k="vs1.roar">E</kbd> rugido · <kbd data-k="vs1.trap" data-all="1">A / Q</kbd> trampa — J2 (carril de abajo): <kbd data-k="vs2.jump">↑</kbd> saltar · <kbd data-k="vs2.slide">↓</kbd> deslizarse · <kbd data-k="vs2.roar">→</kbd> rugido · <kbd data-k="vs2.trap" data-all="1">←</kbd> trampa. Cada 6 s ganas una trampa para el rival (máximo 6 por partida). Sin jefes; gana quien aguante más.</p>
+    <div class="modes">
+      <button class="mode" data-mode="normal"><i>🦖</i><b>NORMAL</b><small id="descNormal"></small></button>
+      <button class="mode" data-mode="easy"><i>🌱</i><b>FÁCIL</b><small id="descEasy"></small></button>
+      <button class="mode hard" data-mode="hard"><i>💀</i><b>DIFÍCIL</b><small id="descHard"></small></button>
+      <button class="mode random" data-mode="random"><i>🎲</i><b>ALEATORIO</b><small id="descRandom"></small></button>
+    </div>
+    <div id="startBox"><h3>Empezar desde</h3>
+    <div id="startLevels" class="levels"></div></div>
+    <p class="touch-hint" id="noCheckpoints">Compra checkpoints en la tienda para empezar en niveles más avanzados.</p>
+    <button class="mm-btn mm-play scr-go" id="btnGo">► ¡A CORRER!<small>o pulsa <kbd data-k="jump">W</kbd></small></button>
+  </div>
+</div>
+
+<!-- Pausa (estilo portada) -->
+<div id="pause" class="overlay scr hidden">
+  <div class="card scr-card pause-card">
+    <h2 class="scr-title">PAUSA</h2>
+    <p class="scr-sub" id="pauseInfo"></p>
+    <div class="pause-cols">
+      <nav class="mm-panel pause-btns">
+        <button class="mm-btn mm-play" id="btnResume">► CONTINUAR<small>o pulsa <kbd data-k="pause">P</kbd></small></button>
+        <button class="mm-btn" id="btnPauseManual"><i>📘</i>Manual</button>
+        <button class="mm-btn" id="btnPauseCtrl"><i>🎮</i>Controles</button>
+        <button class="mm-btn" id="btnPauseMenu"><i>🏠</i>Salir al menú<small>Se guardan las monedas</small></button>
+      </nav>
+      <div id="pauseBuild" class="build-box"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Ruleta de monedas -->
+<div id="roulette" class="overlay scr hidden">
+  <div class="card roulette">
+    <div class="shop-head">
+      <h2>Ruleta</h2>
+      <div class="wallet" id="rWalletBox"><span class="coin"></span> <span id="rWallet">0</span></div>
+      <button class="btn" id="rBack">← Volver</button>
+    </div>
+    <div class="r-body">
+      <canvas id="wheel" width="680" height="680"></canvas>
+      <div class="r-side">
+        <div class="bet"><small id="rModeLabel">APUESTA</small><b id="rBet">10</b></div>
+        <div class="bet-btns">
+          <button class="btn" data-bet="10">+10</button><button class="btn" data-bet="50">+50</button><button class="btn" data-bet="100">+100</button>
+          <button class="btn" data-bet="max" style="grid-column:span 2">Máximo</button><button class="btn" data-bet="reset">Reiniciar apuesta</button>
+        </div>
+        <button class="btn gold" id="rSpin">Girar</button>
+        <div id="rMsg" class="r-msg"></div>
+        <div class="r-table" id="rTable"></div>
+        <button class="btn primary" id="rFree">Giro gratis diario</button>
+        <div id="rFreeInfo" class="touch-hint" style="margin:0"></div>
+        <p class="touch-hint" id="rNote" style="margin:0"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Logros -->
+<div id="achievements" class="overlay scr hidden">
+  <div class="card achs">
+    <div class="shop-head">
+      <h2>Logros</h2>
+      <div class="wallet" id="achCount">Logros: 0/0</div>
+      <button class="btn" id="achBack">← Volver</button>
+    </div>
+    <div class="tabs" id="achFilters"></div>
+    <div id="achGrid"></div>
+    <div class="actions" style="margin-top:14px"><button class="btn ghost" id="achReset">Reiniciar progreso</button></div>
+  </div>
+</div>
+
+<!-- Manual -->
+<div id="manual" class="overlay scr hidden">
+  <div class="card manual">
+    <div class="shop-head"><h2>Manual del juego</h2><button class="btn" id="mBack">← Volver</button></div>
+    <div class="m-body">
+      <nav id="mIndex"></nav>
+      <article id="mContent"></article>
+    </div>
+    <div class="m-nav">
+      <button class="btn" id="mPrev">◀ Anterior</button><span id="mPage"></span><button class="btn" id="mNext">Siguiente ►</button>
+    </div>
+  </div>
+</div>
+
+<!-- Game Over (estilo portada) -->
+<div id="over" class="overlay scr over-scr hidden">
+  <div class="card scr-card over-card">
+    <h2 class="danger over-title" id="overTitle">GAME OVER</h2>
+    <small id="overModeLbl" class="over-mode">MODO NORMAL</small>
+    <p id="overCause" class="over-cause"></p>
+    <div id="overVs" class="vs hidden"></div>
+    <div id="overSolo" class="over-grid">
+      <div class="over-main">
+        <div class="big over-score" id="overScore">0</div>
+        <small class="over-pts">PUNTOS</small>
+        <div id="overRecord" class="record hidden">¡NUEVO RÉCORD!</div>
+        <div id="overToBeat" class="over-tobeat"></div>
+        <div class="stats">
+          <div><small>NIVEL</small><b id="overLevel">1</b></div>
+          <div><small>MONEDAS</small><b class="earned">+<span id="overCoins">0</span></b></div>
+          <div><small>HUEVOS</small><b id="overEggs">0</b></div>
+          <div><small>JEFES</small><b id="overBosses">0</b></div>
+          <div><small>LOGROS</small><b id="overAch">0</b></div>
+          <div><small>RÉCORD</small><b id="overHi">0</b></div>
+          <div><small>TOTAL</small><b><span class="coin"></span> <span id="overWallet">0</span></b></div>
+        </div>
+      </div>
+      <div class="over-side">
+        <div id="overDaily" class="over-daily hidden"></div>
+        <div id="overSeason" class="over-season"></div>
+        <div id="overFossils" class="over-fossils"></div>
+        <div class="over-ach" id="overAchList"></div>
+        <div id="overBuild" class="build-box"></div>
+      </div>
+    </div>
+    <div class="actions over-actions">
+      <button class="btn primary" id="btnRetry">↻ Reintentar</button>
+      <button class="btn gold" id="btnOverShop">Tienda</button>
+      <button class="btn" id="btnMenu">Menú</button>
+      <button class="btn ghost" id="btnHistory">Historial de builds</button>
+      <button class="btn ghost" id="btnOverRank">🌍 Ranking</button>
+    </div>
+  </div>
+</div>
+
+<!-- Elección de mejora / pacto del altar (el juego queda en pausa) -->
+<div id="upgrade" class="overlay hidden">
+  <div class="card up">
+    <h2 id="upTitle">ELIGE UNA MEJORA</h2>
+    <p class="touch-hint" id="upSub"></p>
+    <div id="upCards" class="up-cards"></div>
+    <div class="actions">
+      <button class="btn gold" id="upReroll">Barajar</button>
+      <button class="btn" id="upSkip">Saltar</button>
+      <div class="wallet"><span class="coin"></span> <span id="upCoins">0</span></div>
+    </div>
+    <p class="touch-hint" style="margin:0"><kbd data-k="laneUp">A</kbd>/<kbd data-k="laneDown">D</kbd> elegir carta · <kbd data-k="jump">W</kbd> coger</p>
+    <div id="upBuild" class="build-row"></div>
+  </div>
+</div>
+
+<!-- Copia de seguridad -->
+<div id="backup" class="overlay scr hidden">
+  <div class="card bk">
+    <div class="shop-head"><h2>Guardar / Cargar</h2><button class="btn" id="bkBack">← Volver</button></div>
+    <p class="touch-hint">Guarda TODO tu progreso (monedas, skins, diseños, checkpoints, logros, estadísticas, árbol, historial, álbum y opciones) en un código de texto o en un archivo, y cárgalo en otro navegador u ordenador.</p>
+    <h3>Exportar</h3>
+    <div class="actions"><button class="btn primary" id="bkExport">Crear código</button><button class="btn" id="bkCopy">Copiar código</button><button class="btn gold" id="bkDownload">Descargar archivo</button></div>
+    <textarea id="bkCode" spellcheck="false" placeholder="Pulsa «Crear código»… o pega aquí un código para importarlo"></textarea>
+    <h3>Importar</h3>
+    <div class="actions"><button class="btn purple" id="bkImport">Importar el código pegado</button><button class="btn" id="bkFileBtn">Elegir archivo…</button><input type="file" id="bkFile" accept=".txt,text/plain" hidden></div>
+    <div id="bkSummary" class="bk-sum hidden"><p id="bkSumText"></p><p class="touch-hint">Se sustituirá tu progreso actual (antes se guarda una copia para poder deshacerlo).</p>
+      <div class="actions"><button class="btn primary" id="bkConfirm">Sí, cargar este progreso</button><button class="btn" id="bkCancel">Cancelar</button></div></div>
+    <p id="bkMsg" class="bk-msg"></p>
+    <div class="actions"><button class="btn ghost hidden" id="bkUndo">↶ Restaurar el guardado anterior</button></div>
+    <div class="cloud-box">
+      <h3>☁️ Guardado en la nube</h3>
+      <p class="touch-hint">Sube tu progreso a la nube y recibe un <b>código</b>. En otro móvil u ordenador, escribe ese código para descargarlo. Si vuelves a subir, se actualiza con el mismo código. ¡No lo compartas!</p>
+      <div class="actions"><button class="btn primary" id="cloudUp">Subir a la nube</button><span class="cloud-code" id="cloudCode"></span></div>
+      <div class="actions"><input id="cloudIn" maxlength="14" placeholder="Código (p. ej. ABCD-EFGH-JK)" autocomplete="off" spellcheck="false"><button class="btn purple" id="cloudDown">Descargar de la nube</button></div>
+      <p id="cloudMsg" class="bk-msg"></p>
+    </div>
+  </div>
+</div>
+
+<!-- Multijugador online -->
+<div id="net" class="overlay scr hidden">
+  <div class="card achs net-card">
+    <div class="shop-head"><h2>🌐 Online</h2><button class="btn" id="netBack">← Volver</button></div>
+    <div id="netHome">
+      <div class="rk-nick"><span class="ed-lbl">Tu apodo</span><input id="netNick" maxlength="16" placeholder="Elige un apodo" autocomplete="off" spellcheck="false"><button class="btn primary small" id="netNickOk">Guardar</button></div>
+      <div class="net-tiles">
+        <button class="mm-tile" id="netQuick"><i>⚡</i><b>Partida rápida</b><small>Te empareja con quien esté buscando</small></button>
+        <button class="mm-tile" id="netCreate"><i>➕</i><b>Crear sala</b><small>Para jugar con tus amigos con un código</small></button>
+        <div class="mm-tile net-join"><i>🔑</i><b>Unirse a una sala</b><input id="netCodeIn" maxlength="4" placeholder="CÓDIGO" autocomplete="off" spellcheck="false"><button class="btn small purple" id="netJoin">Entrar</button></div>
+      </div>
+      <div id="netSearching" class="net-searching hidden"><span class="net-spin"></span><b id="netSearchTxt">Buscando rival…</b><button class="btn small" id="netCancel">Cancelar</button></div>
+      <p class="touch-hint">De 2 a 4 jugadores. Todos corréis el mismo recorrido a la vez, sin jefes ni mejoras; los rivales se ven como fantasmas. Cada 8 s ganas una <b>trampa</b>, hasta 6 por carrera (tecla <kbd data-k="trap" data-all="1">Q</kbd> o botón 🎯) que aparece delante del rival que va justo por delante de ti. Gana quien llegue más lejos.</p>
+    </div>
+    <div id="netRoom" class="hidden">
+      <div class="net-code">SALA <b id="netCode">ABCD</b><small>Pasa este código a tus amigos para que entren</small></div>
+      <div class="net-modes"><button class="btn" id="netModeRace">🏁 Carrera</button><button class="btn" id="netModeCoop">🤝 Cooperativo</button></div><p class="touch-hint" id="netModeDesc"></p>
+      <div id="netPlayers" class="net-players"></div>
+      <p class="touch-hint" id="netRoomHint"></p>
+      <div class="actions"><button class="btn primary" id="netReady">Estoy listo</button><button class="btn gold hidden" id="netStart">► Empezar</button><button class="btn" id="netLeave">Salir de la sala</button></div>
+    </div>
+    <p id="netMsg" class="bk-msg"></p>
+  </div>
+</div>
+<div id="netResult" class="overlay scr hidden">
+  <div class="card scr-card net-res">
+    <h2 class="scr-title" id="nrTitle">¡ELIMINADO!</h2>
+    <p class="scr-sub" id="nrSub"></p>
+    <div id="nrList" class="net-podium"></div>
+    <div class="actions"><button class="btn primary hidden" id="nrSpec">👁 Volver a espectar</button></div>
+    <div class="actions" id="nrActions"><button class="btn primary" id="nrAgain">↻ Revancha (misma sala)</button><button class="btn" id="nrExit">Salir</button></div>
+  </div>
+</div>
+
+<!-- Ranking mundial -->
+<div id="ranking" class="overlay scr hidden">
+  <div class="card achs">
+    <div class="shop-head"><h2>🌍 Ranking mundial</h2><button class="btn" id="rkBack">← Volver</button></div>
+    <div class="rk-nick"><span class="ed-lbl">Tu apodo</span><input id="rkNick" maxlength="16" placeholder="Elige un apodo" autocomplete="off" spellcheck="false"><button class="btn primary small" id="rkNickOk">Guardar</button></div>
+    <p id="rkMsg" class="bk-msg"></p>
+    <div class="tabs" id="rkTabs"></div>
+    <p id="rkMe" class="rk-me"></p>
+    <div id="rkList"></div>
+    <p class="touch-hint">La carrera diaria tiene ranking de hoy; el resto de modos, el mejor de siempre. Las partidas con «Todas las mejoras» del código secreto no cuentan.</p>
+  </div>
+</div>
+
+<!-- Pase de temporada -->
+<div id="season" class="overlay scr hidden">
+  <div class="card achs season">
+    <div class="shop-head"><h2>Pase de temporada</h2><div class="wallet" id="seasonLvl">Nivel 0/30</div><button class="btn" id="seasonBack">← Volver</button></div>
+    <div class="ss-hero">
+      <canvas id="seasonPreview" width="300" height="200"></canvas>
+      <div class="ss-side">
+        <h3>Temporada 1 · Era Prismática</h3>
+        <div id="seasonInfo" class="ss-info"></div>
+        <div class="bar ss-bar"><i id="seasonBar"></i></div><small id="seasonXp"></small>
+        <p class="touch-hint">Gratis y sin dinero real: cada partida da XP (puntos, jefes, niveles, huevos y sinergias). Las recompensas se entregan solas al subir de nivel.</p>
+      </div>
+    </div>
+    <div id="seasonTrack" class="ss-track"></div>
+  </div>
+</div>
+
+<!-- Árbol de mejoras permanentes -->
+<div id="tree" class="overlay scr hidden">
+  <div class="card achs tree">
+    <div class="shop-head"><h2>Árbol de mejoras</h2><div class="wallet" id="treeFossils">0</div><button class="btn" id="treeBack">← Volver</button></div>
+    <p class="touch-hint">Mejoras permanentes que se aplican al empezar cada partida (no en el multijugador). Se pagan con <b>fósiles</b>: los ganas al acabar cada partida completando niveles, derrotando jefes, activando sinergias y batiendo tu récord. Un nodo se desbloquea cuando el anterior de su rama tiene nivel 1.</p>
+    <div id="treeBox" class="tree-box"><canvas id="treeLines"></canvas></div>
+    <div id="treeInfo" class="tree-info"></div>
+    <div class="actions"><button class="btn ghost" id="treeReset">Reiniciar árbol</button></div>
+  </div>
+</div>
+
+<!-- Controles -->
+<div id="ctrlScr" class="overlay scr hidden">
+  <div class="card achs ctrl">
+    <div class="shop-head"><h2>Controles</h2><button class="btn" id="ctrlBack">← Volver</button></div>
+    <div class="tabs" id="ctrlTabs"><button class="tab" data-t="solo">1 jugador y online</button><button class="tab" data-t="vs">Multijugador local</button></div>
+    <div id="ctrlBody"></div>
+  </div>
+</div>
+
+<!-- Estadísticas -->
+<div id="statsScr" class="overlay scr hidden">
+  <div class="card achs st">
+    <div class="shop-head"><h2>Estadísticas</h2><button class="btn" id="stBack">← Volver</button></div>
+    <div class="tabs" id="stTabs"></div>
+    <div id="stBody"></div>
+    <div class="actions" style="margin-top:14px"><button class="btn ghost" id="stReset">Reiniciar estadísticas</button></div>
+  </div>
+</div>
+
+<!-- Historial de builds -->
+<div id="history" class="overlay scr hidden">
+  <div class="card achs">
+    <div class="shop-head"><h2>Historial de builds</h2><button class="btn" id="histBack">← Volver</button></div>
+    <p class="touch-hint">Tus últimas 20 partidas con las mejoras, sinergias y pactos que elegiste.</p>
+    <div id="histList"></div>
+  </div>
+</div>
+
+<!-- Álbum de mejoras -->
+<div id="album" class="overlay scr hidden">
+  <div class="card achs">
+    <div class="shop-head"><h2>Álbum de mejoras</h2><div class="wallet" id="albumCount">0/0</div><button class="btn" id="albumBack">← Volver</button></div>
+    <div id="albumGrid"></div>
+  </div>
+</div>
+
+<!-- Tienda -->
+<div id="shop" class="overlay scr hidden">
+  <div class="card shop">
+    <div class="shop-head">
+      <h2>Tienda</h2>
+      <div class="wallet" id="shopWallet"><span class="coin"></span> <span id="walletNum">0</span></div>
+      <button class="btn purple ghost" id="shopRoulette">Ruleta</button>
+      <button class="btn" id="shopBack">← Volver</button>
+    </div>
+    <div class="tabs"><button class="tab active" data-tab="skins">Skins</button><button class="tab" data-tab="hats">🎩 Accesorios</button><button class="tab" data-tab="fx">✨ Estelas y rugidos</button><button class="tab" data-tab="pets">🐾 Mascotas</button><button class="tab" data-tab="checkpoints">Checkpoints</button><button class="tab" data-tab="editor">Editor</button><button class="tab" data-tab="eggs">🥚 Huevos</button></div>
+    <div id="skinsPane">
+      <div id="skinGrid" class="grid"></div>
+      <h3 class="shop-sec">🔒 Exclusivas de logros</h3>
+      <div id="exclGrid" class="grid"></div>
+      <h3 class="shop-sec">🎟️ Del pase de temporada</h3>
+      <div id="seasonGrid" class="grid"></div>
+      <h3 class="shop-sec">🎨 Mis diseños</h3>
+      <div id="designGrid" class="grid"></div>
+    </div>
+    <div id="hatPane" class="hidden">
+      <p class="touch-hint">Tres huecos: cabeza, espalda y zapatillas. Puedes llevar uno de cada a la vez, encima de cualquier skin (también de tus diseños), y te siguen al correr, saltar y agacharte.</p>
+      <h3 class="shop-sec">🎩 Cabeza</h3><div id="hatGrid-head" class="grid"></div>
+      <h3 class="shop-sec">🎒 Espalda</h3><div id="hatGrid-back" class="grid"></div>
+      <h3 class="shop-sec">👟 Zapatillas</h3><div id="hatGrid-feet" class="grid"></div>
+    </div>
+    <div id="fxPane" class="hidden">
+      <p class="touch-hint">Valen para cualquier skin. La estela comprada se suma a la de tu skin y el rugido comprado sustituye al suyo (solo cambia el aspecto: el alcance es el mismo).</p>
+      <h3 class="shop-sec">💫 Estelas</h3><div id="trailGrid" class="grid"></div>
+      <h3 class="shop-sec">📢 Rugidos</h3><div id="roarGrid" class="grid"></div>
+    </div>
+    <div id="petPane" class="hidden">
+      <p class="touch-hint">Tu mascota corre por el carril del medio y te ayuda: todas traen monedas y algunas también huevos o lanzan fuego a los obstáculos. Ponle nombre, colores, estampado y un aura.</p>
+      <div id="petCustom" class="pet-custom hidden">
+        <canvas id="petPreview" width="240" height="120"></canvas>
+        <div class="pet-ctrl">
+          <div class="ed-row"><span class="ed-lbl">Nombre</span><input id="petName" maxlength="14" placeholder="Nombre"></div>
+          <small class="touch-hint">Especie: <b id="petSpecies"></b></small>
+          <div class="ed-row"><span class="ed-lbl">Cuerpo</span><div class="swatches" id="petBody"></div></div>
+          <div class="ed-row"><span class="ed-lbl">Detalle</span><div class="swatches" id="petAccent"></div></div>
+          <div class="ed-row"><span class="ed-lbl">Estampado</span><div class="chips" id="petPattern"></div></div>
+          <div class="ed-row"><span class="ed-lbl">Aura</span><div class="chips" id="petAura"></div></div>
+          <button class="btn ghost" id="petNone">Ir sin mascota</button>
+        </div>
+      </div>
+      <div id="petGrid" class="grid"></div>
+    </div>
+    <div id="cpPane" class="hidden">
+      <div id="cpGrid" class="grid"></div>
+      <p class="touch-hint">Un checkpoint te deja empezar la partida al inicio de ese nivel (en todos los modos). Se desbloquea al completar el nivel anterior.</p>
+    </div>
+    <div id="eggPane" class="hidden">
+      <div class="egg-head"><span class="egg-ico"></span> Tienes <b id="eggWallet">0</b> huevos <small>· los consigues recogiendo los huevos bonus de los mapas (2 por nivel)</small></div>
+      <div id="eggTypes" class="egg-types"></div>
+      <h3 class="shop-sec">Skins que solo salen de los huevos</h3>
+      <div id="eggSkinGrid" class="grid"></div>
+      <div id="eggHatch" class="egg-hatch hidden">
+        <div class="egg-hatch-box">
+          <canvas id="eggCanvas" width="300" height="200"></canvas>
+          <div id="eggResult" class="egg-result"></div>
+          <button class="btn primary hidden" id="eggOk">¡Genial!</button>
+        </div>
+      </div>
+    </div>
+    <div id="editorPane" class="hidden">
+      <div id="edLocked" class="ed-lock">
+        <canvas id="edLockPreview" width="200" height="120"></canvas>
+        <b>🔒 Editor de skins</b>
+        <p class="touch-hint" style="margin:0">Crea tus propios velociraptores: patrón, colores, fondo y efecto. Hasta 3 diseños.</p>
+        <div class="skin-price"><span class="coin"></span> <span id="edPrice">10000</span></div>
+        <button class="btn gold" id="edBuy">Comprar editor</button>
+      </div>
+      <div id="edBox" class="ed hidden">
+        <div class="ed-ctrl">
+          <canvas id="edPreview" width="240" height="150"></canvas>
+          <div class="ed-btns">
+            <button class="btn purple" id="edRandom">Aleatorio</button><button class="btn" id="edUndo">Deshacer</button>
+            <button class="btn" id="edReset">Restablecer</button><button class="btn primary" id="edSave">Guardar</button>
+          </div>
+          <div class="touch-hint" id="edMsg" style="margin:0"></div>
+        </div>
+        <div class="ed-ctrl">
+          <div class="tabs" id="edSlots" style="margin:0"></div>
+          <div class="ed-row"><span class="ed-lbl">Nombre</span><input id="edName" maxlength="18"></div>
+          <div class="px-box"><span class="ed-lbl">Dibujo píxel a píxel</span>
+            <div class="px-tools" id="edTools"></div>
+            <canvas id="edPixels" width="384" height="320"></canvas>
+            <div class="px-brushes" id="edBrushes"></div>
+            <small class="touch-hint">Pinta cada píxel con un color de la paleta. Las patas (abajo, en gris) se animan solas al correr y agacharte.</small>
+          </div>
+          <div><span class="ed-lbl">Empezar desde una plantilla</span><div class="chips" id="edPatterns"></div></div>
+          <div id="edColors" class="ed-ctrl" style="gap:6px"></div>
+          <div><span class="ed-lbl">Efecto</span><div class="chips" id="edFx"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Kit Dino Runner: motor de skins -->
